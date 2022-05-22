@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        colorSchemeSeed: Colors.red,
+        colorSchemeSeed: Colors.blue,
       ),
       home: const Scaffold(
         body: SafeArea(

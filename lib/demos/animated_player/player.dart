@@ -214,8 +214,8 @@ class _PlayerState extends State<Player> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                IconButton(icon: Icon(Icons.shuffle), onPressed: () {}),
-                                IconButton(icon: Icon(Icons.repeat), onPressed: () {}),
+                                IconButton(icon: const Icon(Icons.shuffle), onPressed: () {}),
+                                IconButton(icon: const Icon(Icons.repeat), onPressed: () {}),
                               ],
                             ),
                           ),
@@ -227,8 +227,8 @@ class _PlayerState extends State<Player> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                IconButton(iconSize: 32.0, icon: Icon(Icons.skip_previous), onPressed: () {}),
-                                IconButton(iconSize: 32.0, icon: Icon(Icons.skip_next), onPressed: () {}),
+                                IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: () {}),
+                                IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: () {}),
                               ],
                             ),
                           ),
@@ -311,7 +311,7 @@ class _PlayerState extends State<Player> {
                           borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
                           child: const AspectRatio(
                             aspectRatio: 1,
-                            child: ImagePlaceholder(),
+                            child: ImagePlaceholder(large: true),
                           ),
                         ),
                       ),
