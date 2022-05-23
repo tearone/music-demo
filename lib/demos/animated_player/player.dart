@@ -16,9 +16,11 @@ class Player extends StatefulWidget {
 class _PlayerState extends State<Player> {
   double offset = 0.0;
   double prevOffset = 0.0;
+  DateTime dragStart = DateTime.now();
   late Size screenSize;
   late double maxOffset;
   static const headRoom = 50.0;
+  static const actuationOffset = 100.0; // min distance to snap
 
   @override
   void initState() {
@@ -34,7 +36,7 @@ class _PlayerState extends State<Player> {
       curve: Curves.easeOutBack,
       duration: const Duration(milliseconds: 300),
     );
-    if ((prevOffset - offset).abs() > 100) HapticFeedback.lightImpact();
+    if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
   }
 
   void snapToBottom() {
@@ -45,19 +47,20 @@ class _PlayerState extends State<Player> {
       duration: const Duration(milliseconds: 300),
     );
 
-    if ((prevOffset - offset).abs() > 100) HapticFeedback.lightImpact();
+    if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (widget.animation.value == 0) {
+        if (widget.animation.value < (actuationOffset / maxOffset)) {
           snapToTop();
         }
       },
       onVerticalDragStart: (details) {
         prevOffset = offset;
+        dragStart = DateTime.now();
       },
       onVerticalDragUpdate: (details) {
         offset -= details.primaryDelta ?? 0;
@@ -65,27 +68,25 @@ class _PlayerState extends State<Player> {
         widget.animation.animateTo(percentageFromValueInRange(min: 0, max: maxOffset, value: offset), duration: Duration.zero);
       },
       onVerticalDragEnd: (details) {
-        const actuationOffset = 100.0; // min distance to snap
-        bool snapFull;
+        final duration = DateTime.now().difference(dragStart);
+        final distance = prevOffset - offset;
+        final speed = distance / duration.inMilliseconds / 1000;
+
+        // speed threshold is an eyeballed value
+        // used to actuate on fast flicks too
 
         if (prevOffset > maxOffset / 2) {
-          if (prevOffset - offset > actuationOffset) {
-            snapFull = false;
+          if (speed > 0.0001 || distance > actuationOffset) {
+            snapToBottom();
           } else {
-            snapFull = true;
+            snapToTop();
           }
         } else {
-          if (offset - prevOffset > actuationOffset) {
-            snapFull = true;
+          if (-speed > 0.0001 || -distance > actuationOffset) {
+            snapToTop();
           } else {
-            snapFull = false;
+            snapToBottom();
           }
-        }
-
-        if (snapFull) {
-          snapToTop();
-        } else {
-          snapToBottom();
         }
       },
       child: AnimatedBuilder(
@@ -99,7 +100,7 @@ class _PlayerState extends State<Player> {
             children: [
               // Player Body
               Container(
-                color: p > 0 ? Colors.transparent : null,
+                color: p > 0 ? Colors.transparent : null, // hit test only when expanded
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Transform.translate(
@@ -127,7 +128,8 @@ class _PlayerState extends State<Player> {
                 ),
               ),
 
-              // Top Row
+              /// Top Row
+              //! A bug causes performance issues when pressing the icon buttons multiple times
               Opacity(
                 opacity: cp,
                 child: Transform.translate(
@@ -203,60 +205,64 @@ class _PlayerState extends State<Player> {
                 ),
               ),
 
-              // Controls
-              Transform.translate(
-                offset: Offset(0, bottomOffset + (-screenSize.height / 10.0 * p.clamp(0, 2))),
-                child: Padding(
-                  padding: EdgeInsets.all(12.0 * (1 - cp)),
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Stack(
-                      alignment: Alignment.centerRight,
-                      children: [
-                        Opacity(
-                          opacity: (cp * 10 - 9).clamp(0, 1),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.0 * (24 * (1 - cp) + 1)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(icon: const Icon(Icons.shuffle), onPressed: () {}),
-                                IconButton(icon: const Icon(Icons.repeat), onPressed: () {}),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Opacity(
-                          opacity: (cp * 10 - 9).clamp(0, 1),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 84.0 * (2 * (1 - cp) + 1)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: () {}),
-                                IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: () {}),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(right: screenSize.width * cp / 2 - 80 * cp / 2)),
-                          child: Theme(
-                            data: Theme.of(context).copyWith(
-                              floatingActionButtonTheme: FloatingActionButtonThemeData(
-                                sizeConstraints: BoxConstraints.tight(Size.square(vp(a: 60.0, b: 80.0, c: p))),
-                                iconSize: vp(a: 32.0, b: 42.0, c: p),
+              /// Controls
+              //! A bug causes performance issues when pressing the icon buttons multiple times
+              Material(
+                type: MaterialType.transparency,
+                child: Transform.translate(
+                  offset: Offset(0, bottomOffset + (-screenSize.height / 10.0 * p.clamp(0, 2))),
+                  child: Padding(
+                    padding: EdgeInsets.all(12.0 * (1 - cp)),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Opacity(
+                            opacity: (cp * 10 - 9).clamp(0, 1),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12.0 * (24 * (1 - cp) + 1)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(icon: const Icon(Icons.shuffle), onPressed: () {}),
+                                  IconButton(icon: const Icon(Icons.repeat), onPressed: () {}),
+                                ],
                               ),
                             ),
-                            child: FloatingActionButton(
-                              onPressed: () {},
-                              elevation: 0,
-                              backgroundColor: Theme.of(context).colorScheme.surfaceTint.withOpacity(.25),
-                              child: const Icon(Icons.pause),
+                          ),
+                          Opacity(
+                            opacity: (cp * 10 - 9).clamp(0, 1),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 84.0 * (2 * (1 - cp) + 1)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: () {}),
+                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: () {}),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(right: screenSize.width * cp / 2 - 80 * cp / 2)),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                floatingActionButtonTheme: FloatingActionButtonThemeData(
+                                  sizeConstraints: BoxConstraints.tight(Size.square(vp(a: 60.0, b: 80.0, c: p))),
+                                  iconSize: vp(a: 32.0, b: 42.0, c: p),
+                                ),
+                              ),
+                              child: FloatingActionButton(
+                                onPressed: () {},
+                                elevation: 0,
+                                backgroundColor: Theme.of(context).colorScheme.surfaceTint.withOpacity(.25),
+                                child: const Icon(Icons.pause),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
