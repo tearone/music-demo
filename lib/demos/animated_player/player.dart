@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -9,9 +10,10 @@ import 'package:musicdemo/music_track.dart';
 import 'package:musicdemo/utils.dart';
 
 class Player extends StatefulWidget {
-  const Player({Key? key, required this.animation}) : super(key: key);
+  const Player({Key? key, required this.animation, required this.mainImageBytes}) : super(key: key);
 
   final AnimationController animation;
+  final Uint8List mainImageBytes;
 
   @override
   State<Player> createState() => _PlayerState();
@@ -217,7 +219,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                             height: vp(a: 82.0, b: maxOffset / 1.6, c: p.clamp(0, 2)),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onInverseSurface,
+                              color: Theme.of(context).colorScheme.onSecondary,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(24.0 + 6.0 * p),
                                 topRight: Radius.circular(24.0 + 6.0 * p),
@@ -500,9 +502,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                           opacity: 1 - sAnim.value.abs(),
                           child: Transform.translate(
                             offset: Offset(-sAnim.value * sMaxOffset / siParallax, 0),
-                            child: TrackImage(
-                              image: tracks[1].image,
-                              large: true,
+                            child: TrackImage.fromBytes(
+                              bytes: widget.mainImageBytes,
                               p: p,
                               cp: cp,
                               screenSize: screenSize,

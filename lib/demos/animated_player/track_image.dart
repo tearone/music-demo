@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:musicdemo/image_placeholder.dart';
 import 'package:musicdemo/utils.dart';
@@ -5,16 +7,28 @@ import 'package:musicdemo/utils.dart';
 class TrackImage extends StatelessWidget {
   const TrackImage({
     Key? key,
-    required this.image,
+    this.image,
     required this.bottomOffset,
     required this.maxOffset,
     required this.screenSize,
     required this.cp,
     required this.p,
+    this.bytes,
     this.large = false,
   }) : super(key: key);
 
-  final String image;
+  factory TrackImage.fromBytes({
+    required Size screenSize,
+    required double bottomOffset,
+    required double maxOffset,
+    required double cp,
+    required double p,
+    required Uint8List bytes,
+  }) {
+    return TrackImage(bytes: bytes, bottomOffset: bottomOffset, maxOffset: maxOffset, screenSize: screenSize, cp: cp, p: p);
+  }
+
+  final String? image;
   final bool large;
 
   final double bottomOffset;
@@ -22,6 +36,7 @@ class TrackImage extends StatelessWidget {
   final Size screenSize;
   final double cp;
   final double p;
+  final Uint8List? bytes;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +54,7 @@ class TrackImage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
                 child: AspectRatio(
                   aspectRatio: 1,
-                  child: ImagePlaceholder(key: Key(image), large: large),
+                  child: bytes != null ? Image.memory(bytes!) : ImagePlaceholder(key: Key(image ?? "default"), large: large),
                 ),
               ),
             ),
