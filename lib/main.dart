@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
         colorSchemeSeed: Colors.blue,
+        fontFamily: "Montserrat",
       ),
       home: const Scaffold(
         body: SafeArea(
