@@ -279,7 +279,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const SizedBox(
-                            height: 55.0,
+                            height: 65.0,
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24.0),
                               child: WaveformSlider(),
