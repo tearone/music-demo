@@ -15,6 +15,7 @@ dependencies:
   flutter_xlider:
     git:
       url: https://github.com/Ali-Azmoud/flutter_xlider
+  image: ^3.2.0
 
 dev_dependencies:
   flutter_test:

@@ -31,60 +31,53 @@ class _WaveformSliderState extends State<WaveformSlider> {
   Widget build(BuildContext context) {
     final dProgress = progress;
 
-    return SizedBox(
-      height: 65.0,
-      child: Wrap(
-        children: [
-          FlutterSlider(
-            min: 0.0,
-            max: 1.0,
-            step: const FlutterSliderStep(
-              step: 0.001,
-              isPercentRange: true,
-            ),
-            values: [dProgress],
-            handler: FlutterSliderHandler(
-              decoration: const BoxDecoration(),
-              child: Container(
-                  // decoration: BoxDecoration(
-                  //   borderRadius: BorderRadius.circular(3),
-                  //   color: Colors.white,
-                  //   border: Border.all(color: Colors.black.withOpacity(0.65), width: 1),
-                  // ),
-                  ),
-            ),
-            handlerWidth: 5.0,
-            handlerHeight: 40.0,
-            touchSize: 20.0,
-            tooltip: FlutterSliderTooltip(
-              custom: (value) => Container(),
-            ),
-            hatchMark: FlutterSliderHatchMark(
-              labels: _updateEffects(dProgress * waveform.length),
-              linesAlignment: FlutterSliderHatchMarkAlignment.right,
-              density: 0.5,
-            ),
-            trackBar: const FlutterSliderTrackBar(
-              activeTrackBar: BoxDecoration(color: Colors.transparent),
-              inactiveTrackBar: BoxDecoration(color: Colors.transparent),
-            ),
-            onDragStarted: (a, b, c) {
-              isChanging = true;
-              setState(() => progress = b);
-            },
-            onDragCompleted: (a, b, c) {
-              isChanging = false;
-            },
-            onDragging: (a, b, c) {
-              setState(() => progress = b);
-              if ((lastProgress - progress).abs() > 1 / waveform.length) {
-                HapticFeedback.mediumImpact();
-                lastProgress = progress;
-              }
-            },
-          ),
-        ],
+    return FlutterSlider(
+      min: 0.0,
+      max: 1.0,
+      step: const FlutterSliderStep(
+        step: 0.001,
+        isPercentRange: true,
       ),
+      values: [dProgress],
+      handler: FlutterSliderHandler(
+        decoration: const BoxDecoration(),
+        child: Container(
+            // decoration: BoxDecoration(
+            //   borderRadius: BorderRadius.circular(3),
+            //   color: Colors.white,
+            //   border: Border.all(color: Colors.black.withOpacity(0.65), width: 1),
+            // ),
+            ),
+      ),
+      handlerWidth: 5.0,
+      handlerHeight: 40.0,
+      touchSize: 20.0,
+      tooltip: FlutterSliderTooltip(
+        custom: (value) => Container(),
+      ),
+      hatchMark: FlutterSliderHatchMark(
+        labels: _updateEffects(dProgress * waveform.length),
+        linesAlignment: FlutterSliderHatchMarkAlignment.right,
+        density: 0.5,
+      ),
+      trackBar: const FlutterSliderTrackBar(
+        activeTrackBar: BoxDecoration(color: Colors.transparent),
+        inactiveTrackBar: BoxDecoration(color: Colors.transparent),
+      ),
+      onDragStarted: (a, b, c) {
+        isChanging = true;
+        setState(() => progress = b);
+      },
+      onDragCompleted: (a, b, c) {
+        isChanging = false;
+      },
+      onDragging: (a, b, c) {
+        setState(() => progress = b);
+        if ((lastProgress - progress).abs() > 1 / waveform.length) {
+          HapticFeedback.mediumImpact();
+          lastProgress = progress;
+        }
+      },
     );
   }
 
