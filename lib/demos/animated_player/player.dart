@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:musicdemo/demos/animated_player/track_image.dart';
 import 'package:musicdemo/demos/animated_player/track_info.dart';
-import 'package:musicdemo/image_placeholder.dart';
 import 'package:musicdemo/music_track.dart';
 import 'package:musicdemo/utils.dart';
 
@@ -246,12 +245,12 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: const [
-                              Text("Playing from", style: TextStyle(color: Colors.white70)),
+                              Text("Playing from", style: TextStyle(color: Colors.white70, fontSize: 16.0)),
                               Text(
                                 "Fuzet",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18.0,
                                 ),
                               ),
                             ],
@@ -272,7 +271,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               Opacity(
                 opacity: (cp * 10 - 9).clamp(0, 1),
                 child: Transform.translate(
-                  offset: Offset(0, bottomOffset + (-maxOffset / 4.5 * p.clamp(0, 2))),
+                  offset: Offset(0, bottomOffset + (-maxOffset / 4.4 * p.clamp(0, 2))),
                   child: Align(
                     alignment: Alignment.bottomLeft,
                     child: Column(
@@ -306,7 +305,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               Material(
                 type: MaterialType.transparency,
                 child: Transform.translate(
-                  offset: Offset(0, bottomOffset + (-maxOffset / 10.0 * p.clamp(0, 2))),
+                  offset: Offset(0, bottomOffset + (-maxOffset / 8.0 * p.clamp(0, 2))),
                   child: Padding(
                     padding: EdgeInsets.all(12.0 * (1 - cp)),
                     child: Align(
@@ -358,6 +357,42 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Destination selector
+              Opacity(
+                opacity: (cp * 10 - 9).clamp(0, 1),
+                child: Transform.translate(
+                  offset: Offset(0, -100 * (1 - cp)),
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+                        child: TextButton(
+                          onPressed: () {},
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6.0),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.secondaryContainer,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.headphones, size: 18.0, color: Theme.of(context).colorScheme.onSecondaryContainer),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 14.0),
+                                child: Text('Nothing Ear 1', style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),

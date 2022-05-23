@@ -39,7 +39,7 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
                   padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0),
                   child: Text(
                     "Home",
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 32.0),
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 42.0),
                   ),
                 ),
               ),

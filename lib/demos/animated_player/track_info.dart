@@ -47,16 +47,16 @@ class TrackInfo extends StatelessWidget {
                             Text(
                               title,
                               style: TextStyle(
-                                fontSize: vp(a: 18.0, b: 36.0, c: p),
-                                fontWeight: FontWeight.w800,
+                                fontSize: vp(a: 18.0, b: 32.0, c: p),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
                               artist,
                               style: TextStyle(
-                                fontSize: vp(a: 16.0, b: 24.0, c: p),
-                                color: Colors.white70,
-                                fontWeight: FontWeight.w300,
+                                fontSize: vp(a: 15.0, b: 20.0, c: p),
+                                color: Colors.white.withOpacity(.5),
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ],
@@ -68,7 +68,7 @@ class TrackInfo extends StatelessWidget {
                           offset: Offset(-100 * (1.0 - cp), 0.0),
                           child: IconButton(
                             onPressed: () {},
-                            iconSize: 34.0,
+                            iconSize: 30.0,
                             icon: const Icon(Icons.favorite_border),
                           ),
                         ),
