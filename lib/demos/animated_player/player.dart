@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:musicdemo/demos/animated_player/track_image.dart';
 import 'package:musicdemo/demos/animated_player/track_info.dart';
 import 'package:musicdemo/image_placeholder.dart';
+import 'package:musicdemo/music_track.dart';
 import 'package:musicdemo/utils.dart';
 
 class Player extends StatefulWidget {
@@ -33,6 +35,12 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   // DateTime sDragStart = DateTime(0);
   late double sMaxOffset;
   late AnimationController sAnim;
+
+  final List<MusicTrack> tracks = [
+    const MusicTrack(image: "1", title: "akactea", artist: "pataki"),
+    const MusicTrack(image: "2", title: "Charmy", artist: "Ekhoe"),
+    const MusicTrack(image: "3", title: "Gyere Velem", artist: "AKC Kretta"),
+  ];
 
   @override
   void initState() {
@@ -71,11 +79,17 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
 
   void snapToPrev() {
     sOffset = -sMaxOffset;
-    sAnim.animateTo(
+    sAnim
+        .animateTo(
       -1.0,
       curve: Curves.easeOutBack,
       duration: const Duration(milliseconds: 300),
-    );
+    )
+        .then((_) {
+      sOffset = 0;
+      sAnim.animateTo(0.0, duration: Duration.zero);
+      tracks.insert(0, tracks.removeLast());
+    });
     if ((sPrevOffset - sOffset).abs() > actuationOffset) HapticFeedback.lightImpact();
   }
 
@@ -91,11 +105,17 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
 
   void snapToNext() {
     sOffset = sMaxOffset;
-    sAnim.animateTo(
+    sAnim
+        .animateTo(
       1.0,
       curve: Curves.easeOutBack,
       duration: const Duration(milliseconds: 300),
-    );
+    )
+        .then((_) {
+      sOffset = 0;
+      sAnim.animateTo(0.0, duration: Duration.zero);
+      tracks.add(tracks.removeAt(0));
+    });
     if ((sPrevOffset - sOffset).abs() > actuationOffset) HapticFeedback.lightImpact();
   }
 
@@ -314,8 +334,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: () {}),
-                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: () {}),
+                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: snapToPrev),
+                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: snapToNext),
                                 ],
                               ),
                             ),
@@ -345,79 +365,59 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               ),
 
               // Track Info
-              AnimatedBuilder(
-                animation: sAnim,
-                builder: (context, child) {
-                  return Stack(
-                    children: [
-                      Opacity(
-                        opacity: -sAnim.value.clamp(-1.0, 0.0),
-                        child: Transform.translate(
-                          offset: Offset(
-                              -sAnim.value * sMaxOffset / stParallax - sMaxOffset / stParallax, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
-                          child: Padding(
-                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.symmetric(horizontal: 24.0 * cp)),
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: SizedBox(
-                                height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 82.0 * (1 - cp)), // Image placeholder
-                                    Expanded(child: TrackInfo(animation: widget.animation, title: "Charmy", artist: "Ekhoe")),
-                                  ],
-                                ),
-                              ),
-                            ),
+              Material(
+                type: MaterialType.transparency,
+                child: AnimatedBuilder(
+                  animation: sAnim,
+                  builder: (context, child) {
+                    return Stack(
+                      children: [
+                        Opacity(
+                          opacity: -sAnim.value.clamp(-1.0, 0.0),
+                          child: Transform.translate(
+                            offset: Offset(-sAnim.value * sMaxOffset / stParallax - sMaxOffset / stParallax, 0),
+                            child: TrackInfo(
+                                artist: tracks[0].artist,
+                                title: tracks[0].title,
+                                cp: cp,
+                                p: p,
+                                bottomOffset: bottomOffset,
+                                maxOffset: maxOffset,
+                                screenSize: screenSize),
                           ),
                         ),
-                      ),
-                      Opacity(
-                        opacity: 1 - sAnim.value.abs(),
-                        child: Transform.translate(
-                          offset: Offset(-sAnim.value * sMaxOffset / stParallax, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
-                          child: Padding(
-                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.symmetric(horizontal: 24.0 * cp)),
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: SizedBox(
-                                height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 82.0 * (1 - cp)), // Image placeholder
-                                    Expanded(child: TrackInfo(animation: widget.animation, title: "akactea", artist: "pataki")),
-                                  ],
-                                ),
-                              ),
-                            ),
+                        Opacity(
+                          opacity: 1 - sAnim.value.abs(),
+                          child: Transform.translate(
+                            offset: Offset(-sAnim.value * sMaxOffset / stParallax, 0),
+                            child: TrackInfo(
+                                artist: tracks[1].artist,
+                                title: tracks[1].title,
+                                cp: cp,
+                                p: p,
+                                bottomOffset: bottomOffset,
+                                maxOffset: maxOffset,
+                                screenSize: screenSize),
                           ),
                         ),
-                      ),
-                      Opacity(
-                        opacity: sAnim.value.clamp(0.0, 1.0),
-                        child: Transform.translate(
-                          offset: Offset(
-                              -sAnim.value * sMaxOffset / stParallax + sMaxOffset / stParallax, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
-                          child: Padding(
-                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.symmetric(horizontal: 24.0 * cp)),
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: SizedBox(
-                                height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 82.0 * (1 - cp)), // Image placeholder
-                                    Expanded(child: TrackInfo(animation: widget.animation, title: "Gyere Velem", artist: "AKC Kretta")),
-                                  ],
-                                ),
-                              ),
-                            ),
+                        Opacity(
+                          opacity: sAnim.value.clamp(0.0, 1.0),
+                          child: Transform.translate(
+                            offset: Offset(-sAnim.value * sMaxOffset / stParallax + sMaxOffset / stParallax, 0),
+                            child: TrackInfo(
+                                artist: tracks[2].artist,
+                                title: tracks[2].title,
+                                cp: cp,
+                                p: p,
+                                bottomOffset: bottomOffset,
+                                maxOffset: maxOffset,
+                                screenSize: screenSize),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
 
               // Track Image
@@ -429,77 +429,45 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                       Opacity(
                         opacity: -sAnim.value.clamp(-1.0, 0.0),
                         child: Transform.translate(
-                          offset: Offset(
-                              -sAnim.value * sMaxOffset / siParallax - sMaxOffset / siParallax, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
-                          child: Padding(
-                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: SizedBox(
-                                height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
-                                child: Padding(
-                                  padding: EdgeInsets.all(12.0 * (1 - cp)),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
-                                    child: const AspectRatio(
-                                      aspectRatio: 1,
-                                      child: ImagePlaceholder(key: Key("1"), large: true),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          offset: Offset(-sAnim.value * sMaxOffset / siParallax - sMaxOffset / siParallax, 0),
+                          child: TrackImage(
+                            image: tracks[0].image,
+                            large: true,
+                            p: p,
+                            cp: cp,
+                            screenSize: screenSize,
+                            bottomOffset: bottomOffset,
+                            maxOffset: maxOffset,
                           ),
                         ),
                       ),
                       Opacity(
                         opacity: 1 - sAnim.value.abs(),
                         child: Transform.translate(
-                          offset: Offset(-sAnim.value * sMaxOffset / siParallax, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
-                          child: Padding(
-                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: SizedBox(
-                                height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
-                                child: Padding(
-                                  padding: EdgeInsets.all(12.0 * (1 - cp)),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
-                                    child: const AspectRatio(
-                                      aspectRatio: 1,
-                                      child: ImagePlaceholder(key: Key("2"), large: true),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          offset: Offset(-sAnim.value * sMaxOffset / siParallax, 0),
+                          child: TrackImage(
+                            image: tracks[1].image,
+                            large: true,
+                            p: p,
+                            cp: cp,
+                            screenSize: screenSize,
+                            bottomOffset: bottomOffset,
+                            maxOffset: maxOffset,
                           ),
                         ),
                       ),
                       Opacity(
                         opacity: sAnim.value.clamp(0.0, 1.0),
                         child: Transform.translate(
-                          offset: Offset(
-                              -sAnim.value * sMaxOffset / siParallax + sMaxOffset / siParallax, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
-                          child: Padding(
-                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: SizedBox(
-                                height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
-                                child: Padding(
-                                  padding: EdgeInsets.all(12.0 * (1 - cp)),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
-                                    child: const AspectRatio(
-                                      aspectRatio: 1,
-                                      child: ImagePlaceholder(key: Key("3"), large: true),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          offset: Offset(-sAnim.value * sMaxOffset / siParallax + sMaxOffset / siParallax, 0),
+                          child: TrackImage(
+                            image: tracks[2].image,
+                            large: true,
+                            p: p,
+                            cp: cp,
+                            screenSize: screenSize,
+                            bottomOffset: bottomOffset,
+                            maxOffset: maxOffset,
                           ),
                         ),
                       ),
