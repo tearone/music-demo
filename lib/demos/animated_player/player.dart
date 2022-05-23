@@ -17,6 +17,7 @@ class _PlayerState extends State<Player> {
   double prevOffset = 0.0;
   late Size screenSize;
   late double maxOffset;
+  static const headRoom = 50.0;
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _PlayerState extends State<Player> {
       },
       onVerticalDragUpdate: (details) {
         offset -= details.primaryDelta ?? 0;
-        offset = offset.clamp(0, maxOffset);
+        offset = offset.clamp(-headRoom, maxOffset + headRoom);
         widget.animation.animateTo(percentageFromValueInRange(min: 0, max: maxOffset, value: offset), duration: Duration.zero);
       },
       onVerticalDragEnd: (details) {
