@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:musicdemo/demos/animated_player/track_info.dart';
 import 'package:musicdemo/image_placeholder.dart';
+import 'package:musicdemo/utils.dart';
 
 class Player extends StatefulWidget {
   const Player({Key? key, required this.animation}) : super(key: key);
@@ -25,6 +27,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   /// Horizontal track switching
   double sOffset = 0.0;
   double sPrevOffset = 0.0;
+  double stParallax = 1.0;
+  double siParallax = 1.15;
+  static const sActuationMulti = 1.5;
   // DateTime sDragStart = DateTime(0);
   late double sMaxOffset;
   late AnimationController sAnim;
@@ -152,9 +157,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
         // speed threshold is an eyeballed value
         // used to actuate on fast flicks too
 
-        if (distance > actuationOffset * 2) {
+        if (distance > actuationOffset * sActuationMulti) {
           snapToPrev();
-        } else if (-distance > actuationOffset * 2) {
+        } else if (-distance > actuationOffset * sActuationMulti) {
           snapToNext();
         } else {
           snapToCurrent();
@@ -343,43 +348,74 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               AnimatedBuilder(
                 animation: sAnim,
                 builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(-sAnim.value * sMaxOffset / 2, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
-                    child: Padding(
-                      padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 24.0 * cp)),
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: SizedBox(
-                          height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 82.0 * (1 - cp)),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "akactea",
-                                    style: TextStyle(
-                                      fontSize: vp(a: 18.0, b: 36.0, c: p),
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                    "pataki",
-                                    style: TextStyle(
-                                      fontSize: vp(a: 16.0, b: 24.0, c: p),
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                  ),
-                                ],
+                  return Stack(
+                    children: [
+                      Opacity(
+                        opacity: -sAnim.value.clamp(-1.0, 0.0),
+                        child: Transform.translate(
+                          offset: Offset(
+                              -sAnim.value * sMaxOffset / stParallax - sMaxOffset / stParallax, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.symmetric(horizontal: 24.0 * cp)),
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: SizedBox(
+                                height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 82.0 * (1 - cp)), // Image placeholder
+                                    Expanded(child: TrackInfo(animation: widget.animation, title: "Charmy", artist: "Ekhoe")),
+                                  ],
+                                ),
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      Opacity(
+                        opacity: 1 - sAnim.value.abs(),
+                        child: Transform.translate(
+                          offset: Offset(-sAnim.value * sMaxOffset / stParallax, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.symmetric(horizontal: 24.0 * cp)),
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: SizedBox(
+                                height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 82.0 * (1 - cp)), // Image placeholder
+                                    Expanded(child: TrackInfo(animation: widget.animation, title: "akactea", artist: "pataki")),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Opacity(
+                        opacity: sAnim.value.clamp(0.0, 1.0),
+                        child: Transform.translate(
+                          offset: Offset(
+                              -sAnim.value * sMaxOffset / stParallax + sMaxOffset / stParallax, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.symmetric(horizontal: 24.0 * cp)),
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: SizedBox(
+                                height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 82.0 * (1 - cp)), // Image placeholder
+                                    Expanded(child: TrackInfo(animation: widget.animation, title: "Gyere Velem", artist: "AKC Kretta")),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -388,27 +424,86 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               AnimatedBuilder(
                 animation: sAnim,
                 builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(-sAnim.value * sMaxOffset, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
-                    child: Padding(
-                      padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: SizedBox(
-                          height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
+                  return Stack(
+                    children: [
+                      Opacity(
+                        opacity: -sAnim.value.clamp(-1.0, 0.0),
+                        child: Transform.translate(
+                          offset: Offset(
+                              -sAnim.value * sMaxOffset / siParallax - sMaxOffset / siParallax, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
                           child: Padding(
-                            padding: EdgeInsets.all(12.0 * (1 - cp)),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
-                              child: const AspectRatio(
-                                aspectRatio: 1,
-                                child: ImagePlaceholder(large: true),
+                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: SizedBox(
+                                height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
+                                child: Padding(
+                                  padding: EdgeInsets.all(12.0 * (1 - cp)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
+                                    child: const AspectRatio(
+                                      aspectRatio: 1,
+                                      child: ImagePlaceholder(key: Key("1"), large: true),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                      Opacity(
+                        opacity: 1 - sAnim.value.abs(),
+                        child: Transform.translate(
+                          offset: Offset(-sAnim.value * sMaxOffset / siParallax, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: SizedBox(
+                                height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
+                                child: Padding(
+                                  padding: EdgeInsets.all(12.0 * (1 - cp)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
+                                    child: const AspectRatio(
+                                      aspectRatio: 1,
+                                      child: ImagePlaceholder(key: Key("2"), large: true),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Opacity(
+                        opacity: sAnim.value.clamp(0.0, 1.0),
+                        child: Transform.translate(
+                          offset: Offset(
+                              -sAnim.value * sMaxOffset / siParallax + sMaxOffset / siParallax, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
+                            child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: SizedBox(
+                                height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
+                                child: Padding(
+                                  padding: EdgeInsets.all(12.0 * (1 - cp)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
+                                    child: const AspectRatio(
+                                      aspectRatio: 1,
+                                      child: ImagePlaceholder(key: Key("3"), large: true),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -418,24 +513,4 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
       ),
     );
   }
-}
-
-double vp({
-  required final double a,
-  required final double b,
-  required final double c,
-}) {
-  return c * (b - a) + a;
-}
-
-double pv({
-  required final double min,
-  required final double max,
-  required final double value,
-}) {
-  return (value - min) / (max - min);
-}
-
-double norm(double val, double minVal, double maxVal, double newMin, double newMax) {
-  return newMin + (val - minVal) * (newMax - newMin) / (maxVal - minVal);
 }
