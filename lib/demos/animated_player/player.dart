@@ -13,20 +13,34 @@ class Player extends StatefulWidget {
   State<Player> createState() => _PlayerState();
 }
 
-class _PlayerState extends State<Player> {
+class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   double offset = 0.0;
   double prevOffset = 0.0;
-  DateTime dragStart = DateTime.now();
+  DateTime dragStart = DateTime(0);
   late Size screenSize;
   late double maxOffset;
   static const headRoom = 50.0;
   static const actuationOffset = 100.0; // min distance to snap
+
+  /// Horizontal track switching
+  double sOffset = 0.0;
+  double sPrevOffset = 0.0;
+  // DateTime sDragStart = DateTime(0);
+  late double sMaxOffset;
+  late AnimationController sAnim;
 
   @override
   void initState() {
     super.initState();
     screenSize = MediaQueryData.fromWindow(window).size;
     maxOffset = screenSize.height;
+    sMaxOffset = screenSize.width;
+    sAnim = AnimationController(
+      vsync: this,
+      lowerBound: -1,
+      upperBound: 1,
+      value: 0.0,
+    );
   }
 
   void snapToTop() {
@@ -50,6 +64,36 @@ class _PlayerState extends State<Player> {
     if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
   }
 
+  void snapToPrev() {
+    sOffset = -sMaxOffset;
+    sAnim.animateTo(
+      -1.0,
+      curve: Curves.easeOutBack,
+      duration: const Duration(milliseconds: 300),
+    );
+    if ((sPrevOffset - sOffset).abs() > actuationOffset) HapticFeedback.lightImpact();
+  }
+
+  void snapToCurrent() {
+    sOffset = 0;
+    sAnim.animateTo(
+      0.0,
+      curve: Curves.easeOutBack,
+      duration: const Duration(milliseconds: 300),
+    );
+    if ((sPrevOffset - sOffset).abs() > actuationOffset) HapticFeedback.lightImpact();
+  }
+
+  void snapToNext() {
+    sOffset = sMaxOffset;
+    sAnim.animateTo(
+      1.0,
+      curve: Curves.easeOutBack,
+      duration: const Duration(milliseconds: 300),
+    );
+    if ((sPrevOffset - sOffset).abs() > actuationOffset) HapticFeedback.lightImpact();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -65,7 +109,7 @@ class _PlayerState extends State<Player> {
       onVerticalDragUpdate: (details) {
         offset -= details.primaryDelta ?? 0;
         offset = offset.clamp(-headRoom, maxOffset + headRoom);
-        widget.animation.animateTo(percentageFromValueInRange(min: 0, max: maxOffset, value: offset), duration: Duration.zero);
+        widget.animation.animateTo(offset / maxOffset, duration: Duration.zero);
       },
       onVerticalDragEnd: (details) {
         final duration = DateTime.now().difference(dragStart);
@@ -76,17 +120,44 @@ class _PlayerState extends State<Player> {
         // used to actuate on fast flicks too
 
         if (prevOffset > maxOffset / 2) {
+          // Start from top
           if (speed > 0.0001 || distance > actuationOffset) {
             snapToBottom();
           } else {
             snapToTop();
           }
         } else {
+          // Start from bottom
           if (-speed > 0.0001 || -distance > actuationOffset) {
             snapToTop();
           } else {
             snapToBottom();
           }
+        }
+      },
+      onHorizontalDragStart: (details) {
+        sPrevOffset = sOffset;
+        // sDragStart = DateTime.now();
+      },
+      onHorizontalDragUpdate: (details) {
+        sOffset -= details.primaryDelta ?? 0.0;
+        sOffset = sOffset.clamp(-sMaxOffset, sMaxOffset);
+        sAnim.animateTo(sOffset / sMaxOffset, duration: Duration.zero);
+      },
+      onHorizontalDragEnd: (details) {
+        final distance = sPrevOffset - sOffset;
+        // final duration = DateTime.now().difference(sDragStart);
+        // final speed = distance / duration.inMilliseconds / 1000;
+
+        // speed threshold is an eyeballed value
+        // used to actuate on fast flicks too
+
+        if (distance > actuationOffset * 2) {
+          snapToPrev();
+        } else if (-distance > actuationOffset * 2) {
+          snapToNext();
+        } else {
+          snapToCurrent();
         }
       },
       child: AnimatedBuilder(
@@ -176,7 +247,7 @@ class _PlayerState extends State<Player> {
               Opacity(
                 opacity: (cp * 10 - 9).clamp(0, 1),
                 child: Transform.translate(
-                  offset: Offset(0, bottomOffset + (-screenSize.height / 4.5 * p.clamp(0, 2))),
+                  offset: Offset(0, bottomOffset + (-maxOffset / 4.5 * p.clamp(0, 2))),
                   child: Align(
                     alignment: Alignment.bottomLeft,
                     child: Column(
@@ -210,7 +281,7 @@ class _PlayerState extends State<Player> {
               Material(
                 type: MaterialType.transparency,
                 child: Transform.translate(
-                  offset: Offset(0, bottomOffset + (-screenSize.height / 10.0 * p.clamp(0, 2))),
+                  offset: Offset(0, bottomOffset + (-maxOffset / 10.0 * p.clamp(0, 2))),
                   child: Padding(
                     padding: EdgeInsets.all(12.0 * (1 - cp)),
                     child: Align(
@@ -269,67 +340,77 @@ class _PlayerState extends State<Player> {
               ),
 
               // Track Info
-              Transform.translate(
-                offset: Offset(0, bottomOffset + (-screenSize.height / 4 * p.clamp(0, 2))),
-                child: Padding(
-                  padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 24.0 * cp)),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: SizedBox(
-                      height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 82.0 * (1 - cp)),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+              AnimatedBuilder(
+                animation: sAnim,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(-sAnim.value * sMaxOffset / 2, bottomOffset + (-maxOffset / 4 * p.clamp(0, 2))),
+                    child: Padding(
+                      padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 24.0 * cp)),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: SizedBox(
+                          height: vp(a: 82.0, b: screenSize.width / 2, c: cp),
+                          child: Row(
                             children: [
-                              Text(
-                                "akactea",
-                                style: TextStyle(
-                                  fontSize: vp(a: 18.0, b: 36.0, c: p),
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              Text(
-                                "pataki",
-                                style: TextStyle(
-                                  fontSize: vp(a: 16.0, b: 24.0, c: p),
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.w300,
-                                ),
+                              SizedBox(width: 82.0 * (1 - cp)),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "akactea",
+                                    style: TextStyle(
+                                      fontSize: vp(a: 18.0, b: 36.0, c: p),
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  Text(
+                                    "pataki",
+                                    style: TextStyle(
+                                      fontSize: vp(a: 16.0, b: 24.0, c: p),
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Track Image
-              Transform.translate(
-                offset: Offset(0, bottomOffset + (-screenSize.height / 2.2 * p.clamp(0, 2))),
-                child: Padding(
-                  padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: SizedBox(
-                      height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
-                      child: Padding(
-                        padding: EdgeInsets.all(12.0 * (1 - cp)),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
-                          child: const AspectRatio(
-                            aspectRatio: 1,
-                            child: ImagePlaceholder(large: true),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
+              ),
+
+              // Track Image
+              AnimatedBuilder(
+                animation: sAnim,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(-sAnim.value * sMaxOffset, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
+                    child: Padding(
+                      padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: SizedBox(
+                          height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0 * (1 - cp)),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
+                              child: const AspectRatio(
+                                aspectRatio: 1,
+                                child: ImagePlaceholder(large: true),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           );
@@ -347,7 +428,7 @@ double vp({
   return c * (b - a) + a;
 }
 
-double percentageFromValueInRange({
+double pv({
   required final double min,
   required final double max,
   required final double value,
@@ -355,6 +436,6 @@ double percentageFromValueInRange({
   return (value - min) / (max - min);
 }
 
-double normalizeBetweenTwoRanges(double val, double minVal, double maxVal, double newMin, double newMax) {
+double norm(double val, double minVal, double maxVal, double newMin, double newMax) {
   return newMin + (val - minVal) * (newMax - newMin) / (maxVal - minVal);
 }
