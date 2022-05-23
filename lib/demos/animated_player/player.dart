@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:musicdemo/image_placeholder.dart';
 
 class Player extends StatefulWidget {
@@ -33,6 +34,7 @@ class _PlayerState extends State<Player> {
       curve: Curves.easeOutBack,
       duration: const Duration(milliseconds: 300),
     );
+    if ((prevOffset - offset).abs() > 100) HapticFeedback.lightImpact();
   }
 
   void snapToBottom() {
@@ -42,6 +44,8 @@ class _PlayerState extends State<Player> {
       curve: Curves.easeOutBack,
       duration: const Duration(milliseconds: 300),
     );
+
+    if ((prevOffset - offset).abs() > 100) HapticFeedback.lightImpact();
   }
 
   @override
@@ -89,6 +93,7 @@ class _PlayerState extends State<Player> {
         builder: (context, child) {
           final double p = widget.animation.value;
           final double cp = p.clamp(0, 1);
+          final double bottomOffset = (-96 * (1 - cp) + p.clamp(-1, 0) * -200);
 
           return Stack(
             children: [
@@ -98,11 +103,11 @@ class _PlayerState extends State<Player> {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Transform.translate(
-                    offset: Offset(0, -96 * (1 - cp) + p.clamp(-1, 0) * -200),
+                    offset: Offset(0, bottomOffset),
                     child: Container(
                       color: Colors.transparent, // prevents scrolling gap
                       child: Padding(
-                        padding: EdgeInsets.all((12.0 * (1 - p)).clamp(0.0, 12.0)),
+                        padding: EdgeInsets.symmetric(horizontal: 12 * (1 - cp * 10 + 9).clamp(0, 1), vertical: 12 * (1 - cp)),
                         child: Container(
                           height: vp(a: 82.0, b: maxOffset / 1.6, c: p.clamp(0, 2)),
                           width: double.infinity,
@@ -111,8 +116,8 @@ class _PlayerState extends State<Player> {
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(24.0 + 6.0 * p),
                               topRight: Radius.circular(24.0 + 6.0 * p),
-                              bottomLeft: Radius.circular(24.0 * (1 - p)),
-                              bottomRight: Radius.circular(24.0 * (1 - p)),
+                              bottomLeft: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
+                              bottomRight: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
                             ),
                           ),
                         ),
@@ -169,7 +174,7 @@ class _PlayerState extends State<Player> {
               Opacity(
                 opacity: (cp * 10 - 9).clamp(0, 1),
                 child: Transform.translate(
-                  offset: Offset(0, (-96 * (1 - cp) + p.clamp(-1, 0) * -200) + (-screenSize.height / 4.5 * p.clamp(0, 2))),
+                  offset: Offset(0, bottomOffset + (-screenSize.height / 4.5 * p.clamp(0, 2))),
                   child: Align(
                     alignment: Alignment.bottomLeft,
                     child: Column(
@@ -200,7 +205,7 @@ class _PlayerState extends State<Player> {
 
               // Controls
               Transform.translate(
-                offset: Offset(0, (-96 * (1 - cp) + p.clamp(-1, 0) * -200) + (-screenSize.height / 10.0 * p.clamp(0, 2))),
+                offset: Offset(0, bottomOffset + (-screenSize.height / 10.0 * p.clamp(0, 2))),
                 child: Padding(
                   padding: EdgeInsets.all(12.0 * (1 - cp)),
                   child: Align(
@@ -259,7 +264,7 @@ class _PlayerState extends State<Player> {
 
               // Track Info
               Transform.translate(
-                offset: Offset(0, (-96 * (1 - cp) + p.clamp(-1, 0) * -200) + (-screenSize.height / 4 * p.clamp(0, 2))),
+                offset: Offset(0, bottomOffset + (-screenSize.height / 4 * p.clamp(0, 2))),
                 child: Padding(
                   padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 24.0 * cp)),
                   child: Align(
@@ -299,7 +304,7 @@ class _PlayerState extends State<Player> {
 
               // Track Image
               Transform.translate(
-                offset: Offset(0, (-96 * (1 - cp) + p.clamp(-1, 0) * -200) + (-screenSize.height / 2.2 * p.clamp(0, 2))),
+                offset: Offset(0, bottomOffset + (-screenSize.height / 2.2 * p.clamp(0, 2))),
                 child: Padding(
                   padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
                   child: Align(
