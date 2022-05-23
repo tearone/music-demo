@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter_xlider/flutter_xlider.dart';
-import 'package:musicdemo/demos/animated_player/player.dart';
+
 import 'package:musicdemo/utils.dart';
 
-class PlayerExpandedSlider extends StatefulWidget {
-  const PlayerExpandedSlider({Key? key}) : super(key: key);
+class WaveformSlider extends StatefulWidget {
+  const WaveformSlider({Key? key}) : super(key: key);
 
   @override
-  State<PlayerExpandedSlider> createState() => _PlayerExpandedSliderState();
+  State<WaveformSlider> createState() => _WaveformSliderState();
 }
 
-class _PlayerExpandedSliderState extends State<PlayerExpandedSlider> {
+class _WaveformSliderState extends State<WaveformSlider> {
   double progress = 0.0;
   double lastProgress = 0.0;
   bool isChanging = false;
@@ -55,22 +55,25 @@ class _PlayerExpandedSliderState extends State<PlayerExpandedSlider> {
         handlerHeight: 40.0,
         touchSize: 20.0,
         tooltip: FlutterSliderTooltip(
-          disableAnimation: true, // disabled because looked buggy
-          custom: (_) => Text.rich(
-            TextSpan(
-              text: "03:10",
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: isChanging ? Colors.white.withOpacity(.75) : Colors.transparent,
-              ),
-            ),
-          ),
-          boxStyle: const FlutterSliderTooltipBox(
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-            ),
-          ),
+          custom: (value) => Container(),
         ),
+        // tooltip: FlutterSliderTooltip(
+        //   disableAnimation: true, // disabled because looked buggy
+        //   custom: (_) => Text.rich(
+        //     TextSpan(
+        //       text: "03:10",
+        //       style: TextStyle(
+        //         fontWeight: FontWeight.w500,
+        //         color: isChanging ? Colors.white.withOpacity(.75) : Colors.transparent,
+        //       ),
+        //     ),
+        //   ),
+        //   boxStyle: const FlutterSliderTooltipBox(
+        //     decoration: BoxDecoration(
+        //       color: Colors.transparent,
+        //     ),
+        //   ),
+        // ),
         hatchMark: FlutterSliderHatchMark(
           labels: _updateEffects(dProgress * waveform.length),
           linesAlignment: FlutterSliderHatchMarkAlignment.right,

@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:musicdemo/demos/animated_player/expanded_slider.dart';
+import 'package:musicdemo/demos/animated_player/slider.dart';
 import 'package:musicdemo/demos/animated_player/track_image.dart';
 import 'package:musicdemo/demos/animated_player/track_info.dart';
 import 'package:musicdemo/music_track.dart';
@@ -282,7 +282,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                             height: 55.0,
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24.0),
-                              child: PlayerExpandedSlider(),
+                              child: WaveformSlider(),
                             )),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
