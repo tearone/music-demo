@@ -226,79 +226,81 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
 
               /// Top Row
               //! A bug causes performance issues when pressing the icon buttons multiple times
-              Opacity(
-                opacity: cp,
-                child: Transform.translate(
-                  offset: Offset(0, (1 - p) * -100),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              snapToBottom();
-                            },
-                            icon: const Icon(Icons.expand_more),
-                            iconSize: 32.0,
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Text("Playing from", style: TextStyle(color: Colors.white70, fontSize: 16.0)),
-                              Text(
-                                "Fuzet",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18.0,
+              if (cp != 0)
+                Opacity(
+                  opacity: cp,
+                  child: Transform.translate(
+                    offset: Offset(0, (1 - p) * -100),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                snapToBottom();
+                              },
+                              icon: const Icon(Icons.expand_more),
+                              iconSize: 32.0,
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Text("Playing from", style: TextStyle(color: Colors.white70, fontSize: 16.0)),
+                                Text(
+                                  "Fuzet",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18.0,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.more_vert),
-                            iconSize: 26.0,
+                              ],
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.more_vert),
+                              iconSize: 26.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Slider
+              if (cp != 0)
+                Opacity(
+                  opacity: (cp * 10 - 9).clamp(0, 1),
+                  child: Transform.translate(
+                    offset: Offset(0, bottomOffset + (-maxOffset / 4.4 * p.clamp(0, 2))),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(
+                              height: 65.0,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                                child: WaveformSlider(),
+                              )),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: const [
+                                Text("3:12"),
+                                Text("1:31"),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-              ),
-
-              // Slider
-              Opacity(
-                opacity: (cp * 10 - 9).clamp(0, 1),
-                child: Transform.translate(
-                  offset: Offset(0, bottomOffset + (-maxOffset / 4.4 * p.clamp(0, 2))),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(
-                            height: 65.0,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 24.0),
-                              child: WaveformSlider(),
-                            )),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              Text("3:12"),
-                              Text("1:31"),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
 
               /// Controls
               //! A bug causes performance issues when pressing the icon buttons multiple times
@@ -313,32 +315,34 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                       child: Stack(
                         alignment: Alignment.centerRight,
                         children: [
-                          Opacity(
-                            opacity: (cp * 10 - 9).clamp(0, 1),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12.0 * (24 * (1 - cp) + 1)),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(icon: const Icon(Icons.shuffle), onPressed: () {}),
-                                  IconButton(icon: const Icon(Icons.repeat), onPressed: () {}),
-                                ],
+                          if (cp != 0)
+                            Opacity(
+                              opacity: (cp * 10 - 9).clamp(0, 1),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12.0 * (24 * (1 - cp) + 1)),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(icon: const Icon(Icons.shuffle), onPressed: () {}),
+                                    IconButton(icon: const Icon(Icons.repeat), onPressed: () {}),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Opacity(
-                            opacity: (cp * 10 - 9).clamp(0, 1),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 84.0 * (2 * (1 - cp) + 1)),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: snapToPrev),
-                                  IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: snapToNext),
-                                ],
+                          if (cp != 0)
+                            Opacity(
+                              opacity: (cp * 10 - 9).clamp(0, 1),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 84.0 * (2 * (1 - cp) + 1)),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: snapToPrev),
+                                    IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: snapToNext),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
                           Padding(
                             padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(right: screenSize.width * cp / 2 - 80 * cp / 2)),
                             child: Theme(
@@ -364,40 +368,41 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               ),
 
               // Destination selector
-              Opacity(
-                opacity: (cp * 10 - 9).clamp(0, 1),
-                child: Transform.translate(
-                  offset: Offset(0, -100 * (1 - cp)),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
-                        child: TextButton(
-                          onPressed: () {},
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(6.0),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.secondaryContainer,
-                                  shape: BoxShape.circle,
+              if (cp != 0)
+                Opacity(
+                  opacity: (cp * 10 - 9).clamp(0, 1),
+                  child: Transform.translate(
+                    offset: Offset(0, -100 * (1 - cp)),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+                          child: TextButton(
+                            onPressed: () {},
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6.0),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.secondaryContainer,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.headphones, size: 18.0, color: Theme.of(context).colorScheme.onSecondaryContainer),
                                 ),
-                                child: Icon(Icons.headphones, size: 18.0, color: Theme.of(context).colorScheme.onSecondaryContainer),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 14.0),
-                                child: Text('Nothing Ear 1', style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
-                              ),
-                            ],
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0),
+                                  child: Text('Nothing Ear 1', style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
 
               // Track Info
               Material(
