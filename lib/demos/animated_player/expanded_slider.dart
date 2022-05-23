@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:musicdemo/demos/animated_player/player.dart';
+import 'package:musicdemo/utils.dart';
 
 class PlayerExpandedSlider extends StatefulWidget {
   const PlayerExpandedSlider({Key? key}) : super(key: key);
@@ -113,13 +114,13 @@ class _PlayerExpandedSliderState extends State<PlayerExpandedSlider> {
       }
 
       if (dist < 15 && isChanging) {
-        activeOpacity = normalizeBetweenTwoRanges(dist, 0, 15, 1.0, 0.5);
-        inactiveOpacity = normalizeBetweenTwoRanges(dist, 0, 15, 0.2, 0.1);
+        activeOpacity = norm(dist, 0, 15, 1.0, 0.5);
+        inactiveOpacity = norm(dist, 0, 15, 0.2, 0.1);
       }
 
       if (dist < 15 && isChanging) {
-        activeHeight = normalizeBetweenTwoRanges(dist, 0, 15, 1.75, 1.0);
-        inactiveHeight = normalizeBetweenTwoRanges(dist, 0, 15, 1.25, 1.0);
+        activeHeight = norm(dist, 0, 15, 1.75, 1.0);
+        inactiveHeight = norm(dist, 0, 15, 1.25, 1.0);
       }
 
       if (i <= rightPercent) {

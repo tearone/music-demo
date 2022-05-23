@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:musicdemo/demos/animated_player/expanded_slider.dart';
 import 'package:musicdemo/demos/animated_player/track_image.dart';
 import 'package:musicdemo/demos/animated_player/track_info.dart';
 import 'package:musicdemo/image_placeholder.dart';
@@ -278,13 +279,12 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(
-                          height: 42.0,
-                          child: Slider(
-                            value: 0.35,
-                            onChanged: (_) {},
-                          ),
-                        ),
+                        const SizedBox(
+                            height: 55.0,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24.0),
+                              child: PlayerExpandedSlider(),
+                            )),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: Row(
