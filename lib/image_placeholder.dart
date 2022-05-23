@@ -13,7 +13,7 @@ class ImagePlaceholder extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12.0),
         child: Image.network(
-          "https://loremflickr.com/${large ? 400 : 150}/${large ? 400 : 150}?$key",
+          "https://random.imagecdn.app/${large ? 400 : 200}/${large ? 400 : 200}?$key",
           width: 150.0,
           height: 150.0,
           fit: BoxFit.cover,
