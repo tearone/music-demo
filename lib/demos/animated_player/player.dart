@@ -201,6 +201,13 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
             final double p = widget.animation.value;
             final double cp = p.clamp(0, 1);
             final double bottomOffset = (-96 * (1 - cp) + p.clamp(-1, 0) * -200);
+            final BorderRadius borderRadius = BorderRadius.only(
+              topLeft: Radius.circular(24.0 + 6.0 * p),
+              topRight: Radius.circular(24.0 + 6.0 * p),
+              bottomLeft: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
+              bottomRight: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
+            );
+            final Color onSecondary = Theme.of(context).colorScheme.onSecondaryContainer;
 
             return Stack(
               children: [
@@ -219,12 +226,27 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                             height: vp(a: 82.0, b: maxOffset / 1.6, c: p.clamp(0, 2)),
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onSecondary,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(24.0 + 6.0 * p),
-                                topRight: Radius.circular(24.0 + 6.0 * p),
-                                bottomLeft: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
-                                bottomRight: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
+                              color: Colors.black,
+                              borderRadius: borderRadius,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(.25 * cp),
+                                  blurRadius: 32.0,
+                                )
+                              ],
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                // color: Theme.of(context).colorScheme.onSecondary,
+                                borderRadius: borderRadius,
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Theme.of(context).colorScheme.onSecondary.withOpacity(vp(a: .77, b: .9, c: 1 - cp)),
+                                    Theme.of(context).colorScheme.onSecondary.withOpacity(vp(a: .5, b: .9, c: 1 - cp)),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -307,9 +329,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                               padding: const EdgeInsets.symmetric(horizontal: 24.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: const [
-                                  Text("3:12"),
-                                  Text("1:31"),
+                                children: [
+                                  Text("3:12", style: TextStyle(color: onSecondary)),
+                                  Text("1:31", style: TextStyle(color: onSecondary)),
                                 ],
                               ),
                             ),
@@ -324,7 +346,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                 Material(
                   type: MaterialType.transparency,
                   child: Transform.translate(
-                    offset: Offset(0, bottomOffset + (-maxOffset / 8.0 * p.clamp(0, 2))),
+                    offset: Offset(0, bottomOffset + (-maxOffset / 8.5 * p.clamp(0, 2))),
                     child: Padding(
                       padding: EdgeInsets.all(12.0 * (1 - cp)),
                       child: Align(
@@ -336,12 +358,20 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                               Opacity(
                                 opacity: (cp * 10 - 9).clamp(0, 1),
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 12.0 * (24 * (1 - cp) + 1)),
+                                  padding: EdgeInsets.symmetric(horizontal: 24.0 * (16 * (1 - cp) + 1)),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      IconButton(icon: const Icon(Icons.shuffle), onPressed: () {}),
-                                      IconButton(icon: const Icon(Icons.repeat), onPressed: () {}),
+                                      IconButton(
+                                        iconSize: 28.0,
+                                        icon: Icon(Icons.shuffle, color: onSecondary),
+                                        onPressed: () {},
+                                      ),
+                                      IconButton(
+                                        iconSize: 28.0,
+                                        icon: Icon(Icons.repeat, color: onSecondary),
+                                        onPressed: () {},
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -354,8 +384,16 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_previous), onPressed: snapToPrev),
-                                      IconButton(iconSize: 32.0, icon: const Icon(Icons.skip_next), onPressed: snapToNext),
+                                      IconButton(
+                                        iconSize: 40.0,
+                                        icon: Icon(Icons.skip_previous, color: onSecondary),
+                                        onPressed: snapToPrev,
+                                      ),
+                                      IconButton(
+                                        iconSize: 40.0,
+                                        icon: Icon(Icons.skip_next, color: onSecondary),
+                                        onPressed: snapToNext,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -366,7 +404,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                 data: Theme.of(context).copyWith(
                                   floatingActionButtonTheme: FloatingActionButtonThemeData(
                                     sizeConstraints: BoxConstraints.tight(Size.square(vp(a: 60.0, b: 80.0, c: p))),
-                                    iconSize: vp(a: 32.0, b: 42.0, c: p),
+                                    iconSize: vp(a: 32.0, b: 46.0, c: p),
                                   ),
                                 ),
                                 child: FloatingActionButton(
@@ -394,7 +432,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                         alignment: Alignment.bottomLeft,
                         child: SafeArea(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
                             child: TextButton(
                               onPressed: () {},
                               child: Row(
@@ -406,13 +444,37 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                       color: Theme.of(context).colorScheme.secondaryContainer,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(Icons.headphones, size: 18.0, color: Theme.of(context).colorScheme.onSecondaryContainer),
+                                    child: Icon(Icons.headphones, size: 18.0, color: onSecondary),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 14.0),
-                                    child: Text('Nothing Ear 1', style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer)),
+                                    child: Text('Nothing Ear 1', style: TextStyle(color: onSecondary)),
                                   ),
                                 ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Queue button
+                if (cp != 0)
+                  Material(
+                    type: MaterialType.transparency,
+                    child: Opacity(
+                      opacity: (cp * 10 - 9).clamp(0, 1),
+                      child: Transform.translate(
+                        offset: Offset(0, -100 * (1 - cp)),
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                              child: IconButton(
+                                onPressed: () {},
+                                icon: Icon(Icons.queue_music, size: 24.0, color: Theme.of(context).colorScheme.onSecondaryContainer),
                               ),
                             ),
                           ),

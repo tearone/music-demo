@@ -40,6 +40,8 @@ class TrackImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp));
+
     return Transform.translate(
       offset: Offset(0, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
       child: Padding(
@@ -50,11 +52,22 @@ class TrackImage extends StatelessWidget {
             height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
             child: Padding(
               padding: EdgeInsets.all(12.0 * (1 - cp)),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp)),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: bytes != null ? Image.memory(bytes!) : ImagePlaceholder(key: Key(image ?? "default"), large: large),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: borderRadius,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.25 * cp),
+                      blurRadius: 24.0,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: borderRadius,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: bytes != null ? Image.memory(bytes!) : ImagePlaceholder(key: Key(image ?? "default"), large: large),
+                  ),
                 ),
               ),
             ),

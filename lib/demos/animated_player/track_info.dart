@@ -25,7 +25,7 @@ class TrackInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset: Offset(0, bottomOffset + (-maxOffset / 3.9 * p.clamp(0, 2))),
+      offset: Offset(0, bottomOffset + (-maxOffset / 4.0 * p.clamp(0, 2))),
       child: Padding(
         padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.symmetric(horizontal: 24.0 * cp)),
         child: Align(
@@ -47,14 +47,15 @@ class TrackInfo extends StatelessWidget {
                             Text(
                               title,
                               style: TextStyle(
-                                fontSize: vp(a: 18.0, b: 32.0, c: p),
+                                fontSize: vp(a: 18.0, b: 24.0, c: p),
+                                color: Colors.white.withOpacity(.9),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
                               artist,
                               style: TextStyle(
-                                fontSize: vp(a: 15.0, b: 20.0, c: p),
+                                fontSize: vp(a: 15.0, b: 17.0, c: p),
                                 color: Colors.white.withOpacity(.5),
                                 fontWeight: FontWeight.w400,
                               ),
@@ -69,7 +70,7 @@ class TrackInfo extends StatelessWidget {
                           child: IconButton(
                             onPressed: () {},
                             iconSize: 30.0,
-                            icon: const Icon(Icons.favorite_border),
+                            icon: Icon(Icons.favorite_border, color: Theme.of(context).colorScheme.onSecondaryContainer),
                           ),
                         ),
                       ),
