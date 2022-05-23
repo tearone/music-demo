@@ -33,70 +33,57 @@ class _WaveformSliderState extends State<WaveformSlider> {
 
     return SizedBox(
       height: 65.0,
-      child: FlutterSlider(
-        min: 0.0,
-        max: 1.0,
-        step: const FlutterSliderStep(
-          step: 0.001,
-          isPercentRange: true,
-        ),
-        values: [dProgress],
-        handler: FlutterSliderHandler(
-          decoration: const BoxDecoration(),
-          child: Container(
-              // decoration: BoxDecoration(
-              //   borderRadius: BorderRadius.circular(3),
-              //   color: Colors.white,
-              //   border: Border.all(color: Colors.black.withOpacity(0.65), width: 1),
-              // ),
-              ),
-        ),
-        handlerWidth: 5.0,
-        handlerHeight: 40.0,
-        touchSize: 20.0,
-        tooltip: FlutterSliderTooltip(
-          custom: (value) => Container(),
-        ),
-        // tooltip: FlutterSliderTooltip(
-        //   disableAnimation: true, // disabled because looked buggy
-        //   custom: (_) => Text.rich(
-        //     TextSpan(
-        //       text: "03:10",
-        //       style: TextStyle(
-        //         fontWeight: FontWeight.w500,
-        //         color: isChanging ? Colors.white.withOpacity(.75) : Colors.transparent,
-        //       ),
-        //     ),
-        //   ),
-        //   boxStyle: const FlutterSliderTooltipBox(
-        //     decoration: BoxDecoration(
-        //       color: Colors.transparent,
-        //     ),
-        //   ),
-        // ),
-        hatchMark: FlutterSliderHatchMark(
-          labels: _updateEffects(dProgress * waveform.length),
-          linesAlignment: FlutterSliderHatchMarkAlignment.right,
-          density: 0.5,
-        ),
-        trackBar: const FlutterSliderTrackBar(
-          activeTrackBar: BoxDecoration(color: Colors.transparent),
-          inactiveTrackBar: BoxDecoration(color: Colors.transparent),
-        ),
-        onDragStarted: (a, b, c) {
-          isChanging = true;
-          setState(() => progress = b);
-        },
-        onDragCompleted: (a, b, c) {
-          isChanging = false;
-        },
-        onDragging: (a, b, c) {
-          setState(() => progress = b);
-          if ((lastProgress - progress).abs() > 1 / waveform.length) {
-            HapticFeedback.mediumImpact();
-            lastProgress = progress;
-          }
-        },
+      child: Wrap(
+        children: [
+          FlutterSlider(
+            min: 0.0,
+            max: 1.0,
+            step: const FlutterSliderStep(
+              step: 0.001,
+              isPercentRange: true,
+            ),
+            values: [dProgress],
+            handler: FlutterSliderHandler(
+              decoration: const BoxDecoration(),
+              child: Container(
+                  // decoration: BoxDecoration(
+                  //   borderRadius: BorderRadius.circular(3),
+                  //   color: Colors.white,
+                  //   border: Border.all(color: Colors.black.withOpacity(0.65), width: 1),
+                  // ),
+                  ),
+            ),
+            handlerWidth: 5.0,
+            handlerHeight: 40.0,
+            touchSize: 20.0,
+            tooltip: FlutterSliderTooltip(
+              custom: (value) => Container(),
+            ),
+            hatchMark: FlutterSliderHatchMark(
+              labels: _updateEffects(dProgress * waveform.length),
+              linesAlignment: FlutterSliderHatchMarkAlignment.right,
+              density: 0.5,
+            ),
+            trackBar: const FlutterSliderTrackBar(
+              activeTrackBar: BoxDecoration(color: Colors.transparent),
+              inactiveTrackBar: BoxDecoration(color: Colors.transparent),
+            ),
+            onDragStarted: (a, b, c) {
+              isChanging = true;
+              setState(() => progress = b);
+            },
+            onDragCompleted: (a, b, c) {
+              isChanging = false;
+            },
+            onDragging: (a, b, c) {
+              setState(() => progress = b);
+              if ((lastProgress - progress).abs() > 1 / waveform.length) {
+                HapticFeedback.mediumImpact();
+                lastProgress = progress;
+              }
+            },
+          ),
+        ],
       ),
     );
   }
@@ -106,18 +93,18 @@ class _WaveformSliderState extends State<WaveformSlider> {
     for (int i = 0; i < waveform.length; i++) {
       var dist = (i - rightPercent).abs();
 
-      double activeOpacity = 1.0;
+      // double activeOpacity = 1.0;
       double inactiveOpacity = 0.2;
       double activeHeight = 1.0;
       double inactiveHeight = 1.0;
 
       if (isChanging) {
-        activeOpacity = 0.5;
+        // activeOpacity = 0.5;
         inactiveOpacity = 0.1;
       }
 
       if (dist < 15 && isChanging) {
-        activeOpacity = norm(dist, 0, 15, 1.0, 0.5);
+        // activeOpacity = norm(dist, 0, 15, 1.0, 0.5);
         inactiveOpacity = norm(dist, 0, 15, 0.2, 0.1);
       }
 
@@ -125,6 +112,8 @@ class _WaveformSliderState extends State<WaveformSlider> {
         activeHeight = norm(dist, 0, 15, 1.75, 1.0);
         inactiveHeight = norm(dist, 0, 15, 1.25, 1.0);
       }
+
+      Color color = Theme.of(context).colorScheme.primary;
 
       if (i <= rightPercent) {
         newLabels.add(
@@ -138,7 +127,7 @@ class _WaveformSliderState extends State<WaveformSlider> {
               //margin: EdgeInsets.symmetric(horizontal: w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0),
-                color: Colors.white,
+                color: color,
               ),
             ),
           ),
@@ -155,7 +144,7 @@ class _WaveformSliderState extends State<WaveformSlider> {
               //margin: EdgeInsets.symmetric(horizontal: w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0),
-                color: Colors.white.withOpacity(inactiveOpacity),
+                color: color.withOpacity(inactiveOpacity),
               ),
             ),
           ),

@@ -99,7 +99,7 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
             child: AnimatedBuilder(
               animation: animation,
               builder: (context, child) {
-                return Container(color: Colors.black.withOpacity(animation.value.clamp(0, .2)));
+                return Container(color: Colors.black.withOpacity(animation.value.clamp(0, .5)));
               },
             ),
           ),

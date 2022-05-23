@@ -32,7 +32,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   double stParallax = 1.0;
   double siParallax = 1.15;
   static const sActuationMulti = 1.5;
-  // DateTime sDragStart = DateTime(0);
+  DateTime sDragStart = DateTime(0);
   late double sMaxOffset;
   late AnimationController sAnim;
 
@@ -162,7 +162,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
       },
       onHorizontalDragStart: (details) {
         sPrevOffset = sOffset;
-        // sDragStart = DateTime.now();
+        sDragStart = DateTime.now();
       },
       onHorizontalDragUpdate: (details) {
         sOffset -= details.primaryDelta ?? 0.0;
@@ -171,15 +171,15 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
       },
       onHorizontalDragEnd: (details) {
         final distance = sPrevOffset - sOffset;
-        // final duration = DateTime.now().difference(sDragStart);
-        // final speed = distance / duration.inMilliseconds / 1000;
+        final duration = DateTime.now().difference(sDragStart);
+        final speed = distance / duration.inMilliseconds / 1000;
 
         // speed threshold is an eyeballed value
         // used to actuate on fast flicks too
 
-        if (distance > actuationOffset * sActuationMulti) {
+        if (speed > 0.00025 || distance > actuationOffset * sActuationMulti) {
           snapToPrev();
-        } else if (-distance > actuationOffset * sActuationMulti) {
+        } else if (-speed > 0.00025 || -distance > actuationOffset * sActuationMulti) {
           snapToNext();
         } else {
           snapToCurrent();
@@ -246,13 +246,20 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                             ),
                             Column(
                               mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Text("Playing from", style: TextStyle(color: Colors.white70, fontSize: 16.0)),
+                              children: [
                                 Text(
+                                  "Playing from",
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(.8),
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const Text(
                                   "Fuzet",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 18.0,
+                                    fontSize: 20.0,
                                   ),
                                 ),
                               ],
@@ -274,7 +281,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                 Opacity(
                   opacity: (cp * 10 - 9).clamp(0, 1),
                   child: Transform.translate(
-                    offset: Offset(0, bottomOffset + (-maxOffset / 4.4 * p.clamp(0, 2))),
+                    offset: Offset(0, bottomOffset + (-maxOffset / 4.5 * p.clamp(0, 2))),
                     child: Align(
                       alignment: Alignment.bottomLeft,
                       child: Column(
