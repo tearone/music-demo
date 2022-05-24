@@ -24,6 +24,8 @@ class TrackInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double opacity = (inverseAboveTwo(p) * 5 - 4).clamp(0, 1);
+
     return Transform.translate(
       offset: Offset(0, bottomOffset + (-maxOffset / 4.0 * p.clamp(0, 2))),
       child: Padding(
@@ -64,7 +66,7 @@ class TrackInfo extends StatelessWidget {
                         ),
                       ),
                       Opacity(
-                        opacity: (cp * 10 - 9).clamp(0.0, 1.0),
+                        opacity: opacity,
                         child: Transform.translate(
                           offset: Offset(-100 * (1.0 - cp), 0.0),
                           child: IconButton(

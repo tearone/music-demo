@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:musicdemo/demos/animated_player/queue_view.dart';
 import 'package:musicdemo/demos/animated_player/slider.dart';
 import 'package:musicdemo/demos/animated_player/track_image.dart';
 import 'package:musicdemo/demos/animated_player/track_info.dart';
@@ -38,6 +39,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   late double sMaxOffset;
   late AnimationController sAnim;
 
+  late ScrollController scrollController;
+
   final List<MusicTrack> tracks = [
     const MusicTrack(image: "1", title: "akactea", artist: "pataki"),
     const MusicTrack(image: "2", title: "Charmy", artist: "Ekhoe"),
@@ -56,6 +59,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
       upperBound: 1,
       value: 0.0,
     );
+    // scrollController = ScrollController();
+    // scrollController.???
   }
 
   void snapToTop() {
@@ -75,7 +80,16 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
       curve: Curves.easeOutBack,
       duration: const Duration(milliseconds: 300),
     );
+    if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
+  }
 
+  void snapToQueue() {
+    offset = maxOffset * 2;
+    widget.animation.animateTo(
+      2.0,
+      curve: Curves.easeOutBack,
+      duration: const Duration(milliseconds: 300),
+    );
     if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
   }
 
@@ -125,6 +139,10 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        if (offset > maxOffset) {
+          snapToTop();
+          return false;
+        }
         if (offset > maxOffset / 2) {
           snapToBottom();
           return false;
@@ -143,7 +161,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
         },
         onVerticalDragUpdate: (details) {
           offset -= details.primaryDelta ?? 0;
-          offset = offset.clamp(-headRoom, maxOffset + headRoom);
+          offset = offset.clamp(-headRoom, maxOffset * 2);
           widget.animation.animateTo(offset / maxOffset, duration: Duration.zero);
         },
         onVerticalDragEnd: (details) {
@@ -154,10 +172,19 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
           // speed threshold is an eyeballed value
           // used to actuate on fast flicks too
 
-          if (prevOffset > maxOffset / 2) {
+          if (prevOffset > maxOffset) {
+            // Start from queue
+            if (speed > 0.0001 || distance > actuationOffset) {
+              snapToTop();
+            } else {
+              snapToQueue();
+            }
+          } else if (prevOffset > maxOffset / 2) {
             // Start from top
             if (speed > 0.0001 || distance > actuationOffset) {
               snapToBottom();
+            } else if (-speed > 0.0001 || -distance > actuationOffset) {
+              snapToQueue();
             } else {
               snapToTop();
             }
@@ -171,15 +198,18 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
           }
         },
         onHorizontalDragStart: (details) {
+          if (offset > maxOffset) return;
           sPrevOffset = sOffset;
           sDragStart = DateTime.now();
         },
         onHorizontalDragUpdate: (details) {
+          if (offset > maxOffset) return;
           sOffset -= details.primaryDelta ?? 0.0;
           sOffset = sOffset.clamp(-sMaxOffset, sMaxOffset);
           sAnim.animateTo(sOffset / sMaxOffset, duration: Duration.zero);
         },
         onHorizontalDragEnd: (details) {
+          if (offset > maxOffset) return;
           final distance = sPrevOffset - sOffset;
           final duration = DateTime.now().difference(sDragStart);
           final speed = distance / duration.inMilliseconds / 1000;
@@ -208,6 +238,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               bottomRight: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
             );
             final Color onSecondary = Theme.of(context).colorScheme.onSecondaryContainer;
+            final double opacity = (inverseAboveTwo(p) * 5 - 4).clamp(0, 1);
+            final double qp = (p.clamp(1.0, 2.0) - 1).clamp(0.0, 1.0);
+            final double queueOpacity = ((p.clamp(1.0, 2.0) - 1).clamp(0.0, 1.0) * 2 - 1);
 
             return Stack(
               children: [
@@ -258,11 +291,11 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
 
                 /// Top Row
                 //! A bug causes performance issues when pressing the icon buttons multiple times
-                if (cp != 0)
+                if (inverseAboveTwo(p).clamp(0.0, 1.0) > 0.0)
                   Opacity(
-                    opacity: cp,
+                    opacity: inverseAboveTwo(p).clamp(0.0, 1.0),
                     child: Transform.translate(
-                      offset: Offset(0, (1 - p) * -100),
+                      offset: Offset(0, inverseBelowOne(1 - p) * -100),
                       child: SafeArea(
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
@@ -309,9 +342,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                   ),
 
                 // Slider
-                if (cp != 0)
+                if (opacity > 0.0)
                   Opacity(
-                    opacity: (cp * 10 - 9).clamp(0, 1),
+                    opacity: opacity,
                     child: Transform.translate(
                       offset: Offset(0, bottomOffset + (-maxOffset / 4.5 * p.clamp(0, 2))),
                       child: Align(
@@ -354,9 +387,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                         child: Stack(
                           alignment: Alignment.centerRight,
                           children: [
-                            if (cp != 0)
+                            if (opacity > 0.0)
                               Opacity(
-                                opacity: (cp * 10 - 9).clamp(0, 1),
+                                opacity: opacity,
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 24.0 * (16 * (1 - cp) + 1)),
                                   child: Row(
@@ -376,9 +409,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                   ),
                                 ),
                               ),
-                            if (cp != 0)
+                            if (opacity > 0.0)
                               Opacity(
-                                opacity: (cp * 10 - 9).clamp(0, 1),
+                                opacity: opacity,
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 84.0 * (2 * (1 - cp) + 1)),
                                   child: Row(
@@ -403,8 +436,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                               child: Theme(
                                 data: Theme.of(context).copyWith(
                                   floatingActionButtonTheme: FloatingActionButtonThemeData(
-                                    sizeConstraints: BoxConstraints.tight(Size.square(vp(a: 60.0, b: 80.0, c: p))),
-                                    iconSize: vp(a: 32.0, b: 46.0, c: p),
+                                    sizeConstraints: BoxConstraints.tight(Size.square(vp(a: 60.0, b: 80.0, c: inverseAboveTwo(p)))),
+                                    iconSize: vp(a: 32.0, b: 46.0, c: inverseAboveTwo(p)),
                                   ),
                                 ),
                                 child: FloatingActionButton(
@@ -423,11 +456,11 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                 ),
 
                 // Destination selector
-                if (cp != 0)
+                if (opacity > 0.0)
                   Opacity(
-                    opacity: (cp * 10 - 9).clamp(0, 1),
+                    opacity: opacity,
                     child: Transform.translate(
-                      offset: Offset(0, -100 * (1 - cp)),
+                      offset: Offset(0, -100 * (1 - p)),
                       child: Align(
                         alignment: Alignment.bottomLeft,
                         child: SafeArea(
@@ -460,13 +493,13 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                   ),
 
                 // Queue button
-                if (cp != 0)
+                if (opacity > 0.0)
                   Material(
                     type: MaterialType.transparency,
                     child: Opacity(
-                      opacity: (cp * 10 - 9).clamp(0, 1),
+                      opacity: opacity,
                       child: Transform.translate(
-                        offset: Offset(0, -100 * (1 - cp)),
+                        offset: Offset(0, -100 * (1 - p)),
                         child: Align(
                           alignment: Alignment.bottomRight,
                           child: SafeArea(
@@ -593,6 +626,15 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                     );
                   },
                 ),
+
+                if (queueOpacity > 0.0)
+                  Opacity(
+                    opacity: queueOpacity,
+                    child: Transform.translate(
+                      offset: Offset(0, (1 - qp) * maxOffset),
+                      child: QueueView(controller: scrollController),
+                    ),
+                  ),
               ],
             );
           },

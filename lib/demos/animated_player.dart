@@ -23,7 +23,7 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
     animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
-      upperBound: 1.1,
+      upperBound: 2.0,
       lowerBound: -0.1,
       value: 0.0,
     );
