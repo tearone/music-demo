@@ -96,38 +96,38 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
                   ),
                 ),
 
-                // Background blur
-                Positioned.fill(
-                  child: AnimatedBuilder(
-                    animation: animation,
-                    builder: (context, child) {
-                      return BackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 16.0 * animation.value,
-                          sigmaY: 16.0 * animation.value,
-                        ),
-                        child: Container(),
-                      );
-                    },
-                  ),
-                ),
+                /// Background blur
+                // Positioned.fill(
+                //   child: AnimatedBuilder(
+                //     animation: animation,
+                //     builder: (context, child) {
+                //       return BackdropFilter(
+                //         filter: ImageFilter.blur(
+                //           sigmaX: 16.0 * animation.value,
+                //           sigmaY: 16.0 * animation.value,
+                //         ),
+                //         child: Container(),
+                //       );
+                //     },
+                //   ),
+                // ),
 
-                // Opacity
+                /// Opacity
                 Positioned.fill(
                   child: AnimatedBuilder(
                     animation: animation,
                     builder: (context, child) {
                       return Container(
-                        color: Colors.black.withOpacity(animation.value.clamp(0, .6)),
+                        color: Colors.black.withOpacity((animation.value * 1.2).clamp(0, 1)),
                         child: Container(
-                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(animation.value.clamp(0, .1)),
+                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity((animation.value * 3 - 2).clamp(0, .3)),
                         ),
                       );
                     },
                   ),
                 ),
 
-                // Miniplayer
+                /// Miniplayer
                 if (snapshot.hasData) Positioned.fill(child: Player(animation: animation, mainImageBytes: snapshot.data!)),
               ],
             ),

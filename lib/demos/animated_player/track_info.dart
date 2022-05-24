@@ -24,7 +24,7 @@ class TrackInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double opacity = (inverseAboveTwo(p) * 5 - 4).clamp(0, 1);
+    final double opacity = (inverseAboveOne(p) * 10 - 9).clamp(0, 1);
 
     return Transform.translate(
       offset: Offset(0, bottomOffset + (-maxOffset / 4.0 * p.clamp(0, 2))),

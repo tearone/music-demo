@@ -18,12 +18,7 @@ double norm(double val, double minVal, double maxVal, double newMin, double newM
   return newMin + (val - minVal) * (newMax - newMin) / (maxVal - minVal);
 }
 
-double inverseBelowOne(double n) {
-  if (n < 0) return (n * -2);
-  return n;
-}
-
-double inverseAboveTwo(double n) {
+double inverseAboveOne(double n) {
   if (n > 1) return (1 - (1 - n) * -1);
   return n;
 }

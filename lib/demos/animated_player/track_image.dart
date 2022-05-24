@@ -13,6 +13,7 @@ class TrackImage extends StatelessWidget {
     required this.screenSize,
     required this.cp,
     required this.p,
+    this.width = 82.0,
     this.bytes,
     this.large = false,
   }) : super(key: key);
@@ -24,12 +25,23 @@ class TrackImage extends StatelessWidget {
     required double cp,
     required double p,
     required Uint8List bytes,
+    double width = 82.0,
   }) {
-    return TrackImage(bytes: bytes, bottomOffset: bottomOffset, maxOffset: maxOffset, screenSize: screenSize, cp: cp, p: p);
+    return TrackImage(
+      bytes: bytes,
+      bottomOffset: bottomOffset,
+      maxOffset: maxOffset,
+      screenSize: screenSize,
+      cp: cp,
+      p: p,
+      width: width,
+    );
   }
 
   final String? image;
   final bool large;
+
+  final double width;
 
   final double bottomOffset;
   final double maxOffset;
@@ -49,7 +61,7 @@ class TrackImage extends StatelessWidget {
         child: Align(
           alignment: Alignment.bottomLeft,
           child: SizedBox(
-            height: vp(a: 82.0, b: screenSize.width - 84.0, c: cp),
+            height: vp(a: width, b: screenSize.width - 84.0, c: cp),
             child: Padding(
               padding: EdgeInsets.all(12.0 * (1 - cp)),
               child: Container(

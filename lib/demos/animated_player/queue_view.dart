@@ -8,14 +8,24 @@ class QueueView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: ListView.builder(
-        controller: controller,
-        itemCount: 50,
-        itemBuilder: (context, index) {
-          return const QueueTile();
-        },
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 100.0),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(38.0), topRight: Radius.circular(38.0)),
+          child: ListView.builder(
+            controller: controller,
+            itemCount: 50,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return const SizedBox(height: 12.0);
+              }
+              index = index - 1;
+              return const QueueTile();
+            },
+          ),
+        ),
       ),
     );
   }
