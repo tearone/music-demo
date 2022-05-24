@@ -28,6 +28,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   late double topInset;
   late double bottomInset;
   late double maxOffset;
+  static const Cubic bouncingCurve = Cubic(0.175, 0.885, 0.32, 1.125);
+
   static const headRoom = 50.0;
   static const actuationOffset = 100.0; // min distance to snap
   static const deadSpace = 100.0; // Distance from bottom to ignore swipes
@@ -114,7 +116,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     offset = maxOffset;
     widget.animation.animateTo(
       1.0,
-      curve: Curves.easeOutBack,
+      curve: bouncingCurve,
       duration: const Duration(milliseconds: 300),
     );
     if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
@@ -124,7 +126,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     offset = 0;
     widget.animation.animateTo(
       0.0,
-      curve: Curves.easeOutBack,
+      curve: bouncingCurve,
       duration: const Duration(milliseconds: 300),
     );
     if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
@@ -134,7 +136,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     offset = maxOffset * 2;
     widget.animation.animateTo(
       2.0,
-      curve: Curves.easeOutBack,
+      curve: bouncingCurve,
       duration: const Duration(milliseconds: 300),
     );
     if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
@@ -144,10 +146,11 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     sOffset = -sMaxOffset;
     sAnim
         .animateTo(
-      -1.0,
-      curve: Curves.easeOutBack,
-      duration: const Duration(milliseconds: 300),
-    )
+          -1.0,
+          curve: bouncingCurve,
+          duration: const Duration(milliseconds: 300),
+        )
+        .orCancel
         .then((_) {
       sOffset = 0;
       sAnim.animateTo(0.0, duration: Duration.zero);
@@ -160,7 +163,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     sOffset = 0;
     sAnim.animateTo(
       0.0,
-      curve: Curves.easeOutBack,
+      curve: bouncingCurve,
       duration: const Duration(milliseconds: 300),
     );
     if ((sPrevOffset - sOffset).abs() > actuationOffset) HapticFeedback.lightImpact();
@@ -170,10 +173,11 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     sOffset = sMaxOffset;
     sAnim
         .animateTo(
-      1.0,
-      curve: Curves.easeOutBack,
-      duration: const Duration(milliseconds: 300),
-    )
+          1.0,
+          curve: bouncingCurve,
+          duration: const Duration(milliseconds: 300),
+        )
+        .orCancel
         .then((_) {
       sOffset = 0;
       sAnim.animateTo(0.0, duration: Duration.zero);
@@ -256,7 +260,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
             final double rp = inverseAboveOne(p);
             final double rcp = rp.clamp(0, 1);
             final double rip = 1 - rp;
-            final double ricp = 1 - rcp;
+            // final double ricp = 1 - rcp;
 
             final double qp = p.clamp(1.0, 3.0) - 1.0;
             final double qcp = qp.clamp(0.0, 1.0);
@@ -276,11 +280,11 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
             }
 
             final double queueOpacity = ((p.clamp(1.0, 3.0) - 1).clamp(0.0, 1.0) * 4 - 3).clamp(0, 1);
-            final double queueOffset = qcp;
+            final double queueOffset = qp;
 
             return Stack(
               children: [
-                // Player Body
+                /// Player Body
                 Container(
                   color: p > 0 ? Colors.transparent : null, // hit test only when expanded
                   child: Align(
@@ -377,12 +381,12 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                     ),
                   ),
 
-                // Slider
+                /// Slider
                 if (fastOpacity > 0.0)
                   Opacity(
                     opacity: fastOpacity,
                     child: Transform.translate(
-                      offset: Offset(0, bottomOffset + (-maxOffset / 4.5 * p.clamp(0, 3))),
+                      offset: Offset(0, bottomOffset + (-maxOffset / 4.4 * p.clamp(0, 3))),
                       child: Align(
                         alignment: Alignment.bottomLeft,
                         child: Column(
@@ -426,7 +430,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                 Material(
                   type: MaterialType.transparency,
                   child: Transform.translate(
-                    offset: Offset(0, bottomOffset + (-maxOffset / 8.5 * rp) + ((-maxOffset + topInset + 80.0) * qp)),
+                    offset: Offset(0, bottomOffset + (-maxOffset / 7.5 * rp) + ((-maxOffset + topInset + 80.0) * qp)),
                     child: Padding(
                       padding: EdgeInsets.all(12.0 * icp),
                       child: Align(
@@ -509,7 +513,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                   ),
                 ),
 
-                // Destination selector
+                /// Destination selector
                 if (opacity > 0.0)
                   Opacity(
                     opacity: opacity,
@@ -546,7 +550,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                     ),
                   ),
 
-                // Queue button
+                /// Queue button
                 if (opacity > 0.0)
                   Material(
                     type: MaterialType.transparency,
@@ -570,7 +574,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                     ),
                   ),
 
-                // Track Info
+                /// Track Info
                 Material(
                   type: MaterialType.transparency,
                   child: AnimatedBuilder(
@@ -626,7 +630,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                   ),
                 ),
 
-                // Track Image
+                /// Track Image
                 AnimatedBuilder(
                   animation: sAnim,
                   builder: (context, child) {

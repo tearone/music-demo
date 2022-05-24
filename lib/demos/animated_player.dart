@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -23,7 +22,7 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
     animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
-      upperBound: 2.0,
+      upperBound: 2.1,
       lowerBound: -0.1,
       value: 0.0,
     );
@@ -130,7 +129,7 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
 
                 /// Miniplayer
                 if (snapshot.hasData) Positioned.fill(child: Player(animation: animation, mainImageBytes: snapshot.data!)),
-                
+
                 // if (snapshot.hasData)
                 //   SafeArea(
                 //     child: Row(

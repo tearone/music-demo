@@ -55,7 +55,7 @@ class TrackImage extends StatelessWidget {
     final borderRadius = BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp));
 
     return Transform.translate(
-      offset: Offset(0, bottomOffset + (-maxOffset / 2.2 * p.clamp(0, 2))),
+      offset: Offset(0, bottomOffset + (-maxOffset / 2.15 * p.clamp(0, 2))),
       child: Padding(
         padding: EdgeInsets.all(12.0 * (1 - cp)).add(EdgeInsets.only(left: 42.0 * cp)),
         child: Align(
