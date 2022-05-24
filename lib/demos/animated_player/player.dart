@@ -214,8 +214,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
           if (details.globalPosition.dy > screenSize.height - deadSpace) return;
 
           offset -= details.primaryDelta ?? 0;
-          offset = offset.clamp(-headRoom, maxOffset * 2);
-          widget.animation.animateTo((offset / maxOffset).clamp(0, 2), duration: Duration.zero);
+          offset = offset.clamp(-headRoom, maxOffset * 2 + headRoom / 2);
+          widget.animation.animateTo(offset / maxOffset, duration: Duration.zero);
         },
         onVerticalDragEnd: (_) => verticalSnapping(),
         onHorizontalDragStart: (details) {
