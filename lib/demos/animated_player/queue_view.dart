@@ -21,7 +21,13 @@ class QueueView extends StatelessWidget {
             itemCount: 50,
             itemBuilder: (context, index) {
               if (index == 0) {
-                return const SizedBox(height: 12.0);
+                return const Padding(
+                  padding: EdgeInsets.only(left: 24.0, top: 16.0, bottom: 12.0),
+                  child: Text(
+                    "Queue",
+                    style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.w600),
+                  ),
+                );
               }
               index = index - 1;
               return const QueueTile();
