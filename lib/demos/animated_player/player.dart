@@ -375,7 +375,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                   onPressed: () {
                                     snapToMini();
                                   },
-                                  icon: const Icon(Icons.expand_more),
+                                  icon: Icon(Icons.expand_more, color: onSecondary),
                                   iconSize: 32.0,
                                 ),
                                 Column(
@@ -384,23 +384,20 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                     Text(
                                       "Playing from",
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(.8),
+                                        color: onSecondary.withOpacity(.8),
                                         fontSize: 15.0,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    const Text(
+                                    Text(
                                       "Fuzet",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 20.0,
-                                      ),
+                                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20.0, color: onSecondary.withOpacity(.9)),
                                     ),
                                   ],
                                 ),
                                 IconButton(
                                   onPressed: () {},
-                                  icon: const Icon(Icons.more_vert),
+                                  icon: Icon(Icons.more_vert, color: onSecondary),
                                   iconSize: 26.0,
                                 ),
                               ],
