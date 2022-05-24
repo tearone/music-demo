@@ -299,7 +299,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                               borderRadius: borderRadius,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(.25 * cp),
+                                  color: Colors.black.withOpacity(.15 * cp),
                                   blurRadius: 32.0,
                                 )
                               ],
@@ -488,11 +488,17 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                     iconSize: vp(a: 32.0, b: 46.0, c: rp),
                                   ),
                                 ),
-                                child: FloatingActionButton(
-                                  onPressed: () {},
-                                  elevation: 0,
-                                  backgroundColor: Theme.of(context).colorScheme.surfaceTint.withOpacity(.25),
-                                  child: const Icon(Icons.pause),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(16.0),
+                                  ),
+                                  child: FloatingActionButton(
+                                    onPressed: () {},
+                                    elevation: 0,
+                                    backgroundColor: Theme.of(context).colorScheme.surfaceTint.withOpacity(.3),
+                                    child: const Icon(Icons.pause),
+                                  ),
                                 ),
                               ),
                             ),

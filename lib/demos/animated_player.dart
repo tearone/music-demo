@@ -39,11 +39,12 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
     return FutureBuilder<Uint8List>(
       future: getImage(),
       builder: (context, snapshot) {
+        final colors = snapshot.hasData ? generateColorPalette(snapshot.data!) : [];
         return Theme(
           data: ThemeData(
             useMaterial3: true,
             brightness: Brightness.dark,
-            colorSchemeSeed: snapshot.hasData ? extractPixelsColors(snapshot.data!).last : Colors.blue,
+            colorSchemeSeed: snapshot.hasData ? colors[1] : Colors.blue,
             fontFamily: "Montserrat",
           ),
           child: Scaffold(
@@ -120,7 +121,7 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
                       return Container(
                         color: Colors.black.withOpacity((animation.value * 1.2).clamp(0, 1)),
                         child: Container(
-                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity((animation.value * 3 - 2).clamp(0, .3)),
+                          color: Theme.of(context).colorScheme.onSecondary.withOpacity((animation.value * 3 - 2).clamp(0, .45)),
                         ),
                       );
                     },
@@ -129,6 +130,23 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
 
                 /// Miniplayer
                 if (snapshot.hasData) Positioned.fill(child: Player(animation: animation, mainImageBytes: snapshot.data!)),
+                
+                // if (snapshot.hasData)
+                //   SafeArea(
+                //     child: Row(
+                //       children: List.generate(
+                //         colors.length,
+                //         (index) => Container(
+                //           padding: const EdgeInsets.all(12.0),
+                //           child: Container(
+                //             color: colors[index],
+                //             height: 100,
+                //             width: 100,
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
               ],
             ),
           ),
