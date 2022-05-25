@@ -138,11 +138,10 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
   void snap() {
     widget.animation
         .animateTo(
-          offset / maxOffset,
-          curve: bouncingCurve,
-          duration: const Duration(milliseconds: 300),
-        )
-        .orCancel
+      offset / maxOffset,
+      curve: bouncingCurve,
+      duration: const Duration(milliseconds: 300),
+    )
         .then((_) {
       bounceUp = false;
     });
@@ -153,11 +152,10 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     sOffset = -sMaxOffset;
     sAnim
         .animateTo(
-          -1.0,
-          curve: bouncingCurve,
-          duration: const Duration(milliseconds: 300),
-        )
-        .orCancel
+      -1.0,
+      curve: bouncingCurve,
+      duration: const Duration(milliseconds: 300),
+    )
         .then((_) {
       sOffset = 0;
       sAnim.animateTo(0.0, duration: Duration.zero);
@@ -180,11 +178,10 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     sOffset = sMaxOffset;
     sAnim
         .animateTo(
-          1.0,
-          curve: bouncingCurve,
-          duration: const Duration(milliseconds: 300),
-        )
-        .orCancel
+      1.0,
+      curve: bouncingCurve,
+      duration: const Duration(milliseconds: 300),
+    )
         .then((_) {
       sOffset = 0;
       sAnim.animateTo(0.0, duration: Duration.zero);

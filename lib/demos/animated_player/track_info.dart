@@ -50,7 +50,7 @@ class TrackInfo extends StatelessWidget {
                               title,
                               style: TextStyle(
                                 fontSize: vp(a: 18.0, b: 24.0, c: p),
-                                color: Theme.of(context).colorScheme.onSecondaryContainer.withOpacity(.9),
+                                color: Colors.white.withOpacity(.9),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -58,7 +58,7 @@ class TrackInfo extends StatelessWidget {
                               artist,
                               style: TextStyle(
                                 fontSize: vp(a: 15.0, b: 17.0, c: p),
-                                color: Theme.of(context).colorScheme.onSecondaryContainer.withOpacity(.5),
+                                color: Colors.white.withOpacity(.5),
                                 fontWeight: FontWeight.w400,
                               ),
                             ),

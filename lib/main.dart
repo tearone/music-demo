@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:musicdemo/demo_list.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  Paint.enableDithering = true;
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

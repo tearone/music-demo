@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:musicdemo/image_placeholder.dart';
 import 'package:musicdemo/utils.dart';
@@ -52,7 +53,7 @@ class TrackImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(vp(a: 18.0, b: 24.0, c: cp));
+    final borderRadius = SmoothBorderRadius(cornerRadius: vp(a: 18.0, b: 32.0, c: cp), cornerSmoothing: 1.0);
 
     return Transform.translate(
       offset: Offset(0, bottomOffset + (-maxOffset / 2.15 * p.clamp(0, 2))),
@@ -65,17 +66,18 @@ class TrackImage extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(12.0 * (1 - cp)),
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: borderRadius,
-                  boxShadow: [
+                decoration: ShapeDecoration(
+                  shape: SmoothRectangleBorder(borderRadius: borderRadius),
+                  shadows: [
                     BoxShadow(
                       color: Colors.black.withOpacity(.25 * cp),
                       blurRadius: 24.0,
+                      offset: const Offset(0.0, 4.0),
                     ),
                   ],
                 ),
-                child: ClipRRect(
-                  borderRadius: borderRadius,
+                child: ClipSmoothRect(
+                  radius: borderRadius,
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: bytes != null ? Image.memory(bytes!) : ImagePlaceholder(key: Key(image ?? "default"), large: large),

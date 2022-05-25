@@ -39,114 +39,127 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
       future: getImage(),
       builder: (context, snapshot) {
         final colors = snapshot.hasData ? generateColorPalette(snapshot.data!) : [];
+        final theme = ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorSchemeSeed: snapshot.hasData ? colors[1] : Colors.blue,
+          fontFamily: "Montserrat",
+        );
         return Theme(
-          data: ThemeData(
-            useMaterial3: true,
-            brightness: Brightness.dark,
-            colorSchemeSeed: snapshot.hasData ? colors[1] : Colors.blue,
-            fontFamily: "Montserrat",
-          ),
+          data: theme,
           child: Scaffold(
-            body: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                ListView(
-                  children: const [
-                    SafeArea(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0),
-                        child: Text(
-                          "Home",
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 42.0),
-                        ),
-                      ),
-                    ),
-                    HorizontalShowcase(1),
-                    HorizontalShowcase(2),
-                    HorizontalShowcase(3),
-                    HorizontalShowcase(4),
+            body: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0.95, -0.95),
+                  radius: 1.0,
+                  colors: [
+                    theme.colorScheme.onSecondary.withOpacity(.4),
+                    theme.colorScheme.onSecondary.withOpacity(.2),
                   ],
                 ),
-
-                // Bottom Navigation Bar
-                AnimatedBuilder(
-                  animation: animation,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(0, (animation.value * 120).clamp(0, 120)),
-                      child: child,
-                    );
-                  },
-                  child: NavigationBar(
-                    destinations: const [
-                      NavigationDestination(
-                        label: "Home",
-                        icon: Icon(Icons.home_outlined),
-                        selectedIcon: Icon(Icons.home_filled),
+              ),
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  ListView(
+                    children: const [
+                      SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 24.0),
+                          child: Text(
+                            "Home",
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 42.0),
+                          ),
+                        ),
                       ),
-                      NavigationDestination(
-                        label: "Search",
-                        icon: Icon(Icons.search_outlined),
-                      ),
-                      NavigationDestination(
-                        label: "Library",
-                        icon: Icon(Icons.library_music_outlined),
-                      ),
+                      HorizontalShowcase(1),
+                      HorizontalShowcase(2),
+                      HorizontalShowcase(3),
+                      HorizontalShowcase(4),
                     ],
                   ),
-                ),
 
-                /// Background blur
-                // Positioned.fill(
-                //   child: AnimatedBuilder(
-                //     animation: animation,
-                //     builder: (context, child) {
-                //       return BackdropFilter(
-                //         filter: ImageFilter.blur(
-                //           sigmaX: 16.0 * animation.value,
-                //           sigmaY: 16.0 * animation.value,
-                //         ),
-                //         child: Container(),
-                //       );
-                //     },
-                //   ),
-                // ),
-
-                /// Opacity
-                Positioned.fill(
-                  child: AnimatedBuilder(
+                  // Bottom Navigation Bar
+                  AnimatedBuilder(
                     animation: animation,
                     builder: (context, child) {
-                      return Container(
-                        color: Colors.black.withOpacity((animation.value * 1.2).clamp(0, 1)),
-                        child: Container(
-                          color: Theme.of(context).colorScheme.onSecondary.withOpacity((animation.value * 3 - 2).clamp(0, .45)),
-                        ),
+                      return Transform.translate(
+                        offset: Offset(0, (animation.value * 120).clamp(0, 120)),
+                        child: child,
                       );
                     },
+                    child: NavigationBar(
+                      destinations: const [
+                        NavigationDestination(
+                          label: "Home",
+                          icon: Icon(Icons.home_outlined),
+                          selectedIcon: Icon(Icons.home_filled),
+                        ),
+                        NavigationDestination(
+                          label: "Search",
+                          icon: Icon(Icons.search_outlined),
+                        ),
+                        NavigationDestination(
+                          label: "Library",
+                          icon: Icon(Icons.library_music_outlined),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
-                /// Miniplayer
-                if (snapshot.hasData) Positioned.fill(child: Player(animation: animation, mainImageBytes: snapshot.data!)),
+                  /// Background blur
+                  // Positioned.fill(
+                  //   child: AnimatedBuilder(
+                  //     animation: animation,
+                  //     builder: (context, child) {
+                  //       return BackdropFilter(
+                  //         filter: ImageFilter.blur(
+                  //           sigmaX: 16.0 * animation.value,
+                  //           sigmaY: 16.0 * animation.value,
+                  //         ),
+                  //         child: Container(),
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
 
-                // if (snapshot.hasData)
-                //   SafeArea(
-                //     child: Row(
-                //       children: List.generate(
-                //         colors.length,
-                //         (index) => Container(
-                //           padding: const EdgeInsets.all(12.0),
-                //           child: Container(
-                //             color: colors[index],
-                //             height: 100,
-                //             width: 100,
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-              ],
+                  /// Opacity
+                  Positioned.fill(
+                    child: AnimatedBuilder(
+                      animation: animation,
+                      builder: (context, child) {
+                        return Container(
+                          color: Colors.black.withOpacity((animation.value * 1.2).clamp(0, 1)),
+                          child: Container(
+                            color: Theme.of(context).colorScheme.onSecondary.withOpacity((animation.value * 3 - 2).clamp(0, .45)),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  /// Miniplayer
+                  if (snapshot.hasData) Positioned.fill(child: Player(animation: animation, mainImageBytes: snapshot.data!)),
+
+                  // if (snapshot.hasData)
+                  //   SafeArea(
+                  //     child: Row(
+                  //       children: List.generate(
+                  //         colors.length,
+                  //         (index) => Container(
+                  //           padding: const EdgeInsets.all(12.0),
+                  //           child: Container(
+                  //             color: colors[index],
+                  //             height: 100,
+                  //             width: 100,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                ],
+              ),
             ),
           ),
         );
