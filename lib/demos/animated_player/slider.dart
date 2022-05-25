@@ -3,10 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:flutter_xlider/flutter_xlider.dart';
-
-import 'package:musicdemo/utils.dart';
-
 class WaveformSlider extends StatefulWidget {
   const WaveformSlider({Key? key}) : super(key: key);
 
@@ -15,135 +11,73 @@ class WaveformSlider extends StatefulWidget {
 }
 
 class _WaveformSliderState extends State<WaveformSlider> {
+  static const int tickerCount = 50;
   double progress = 0.0;
-  double lastProgress = 0.0;
-  bool isChanging = false;
-
   late List<int> waveform;
+  late List<bool> actives;
 
   @override
   void initState() {
     super.initState();
-    waveform = List.generate(100, (index) => Random().nextInt(50) + 5);
+
+    actives = [];
+    waveform = [];
+    for (int i = 0; i < tickerCount; i++) {
+      actives.add(i == 0);
+      waveform.add(Random().nextInt(30) + 10);
+    }
+  }
+
+  void setProgress() {
+    progress = progress.clamp(0.0, 1.0);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final dProgress = progress;
+    final List<Widget> tickers = [];
 
-    return FlutterSlider(
-      min: 0.0,
-      max: 1.0,
-      step: const FlutterSliderStep(
-        step: 0.001,
-        isPercentRange: true,
-      ),
-      values: [dProgress],
-      handler: FlutterSliderHandler(
-        decoration: const BoxDecoration(),
-        child: Container(
-            // decoration: BoxDecoration(
-            //   borderRadius: BorderRadius.circular(3),
-            //   color: Colors.white,
-            //   border: Border.all(color: Colors.black.withOpacity(0.65), width: 1),
-            // ),
+    for (int i = 0; i < tickerCount; i++) {
+      final bool active = tickerCount * progress >= i;
+
+      if (active != actives[i]) {
+        HapticFeedback.lightImpact();
+        actives[i] = active;
+      }
+
+      tickers.add(AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        width: 3.0,
+        height: waveform[i].toDouble() * (active ? 1.0 : 0.8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary.withOpacity(active ? 1.0 : 0.3),
+          borderRadius: BorderRadius.circular(45.0),
+        ),
+      ));
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GestureDetector(
+          onTapUp: (details) {
+            progress = details.localPosition.dx / constraints.maxWidth;
+            setProgress();
+          },
+          onHorizontalDragStart: (details) {},
+          onHorizontalDragUpdate: (details) {
+            progress = details.localPosition.dx / constraints.maxWidth;
+            setProgress();
+          },
+          onHorizontalDragEnd: (details) {},
+          child: Container(
+            color: Colors.transparent,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: tickers,
             ),
-      ),
-      handlerWidth: 5.0,
-      handlerHeight: 40.0,
-      touchSize: 20.0,
-      tooltip: FlutterSliderTooltip(
-        custom: (value) => Container(),
-      ),
-      hatchMark: FlutterSliderHatchMark(
-        labels: _updateEffects(dProgress * waveform.length),
-        linesAlignment: FlutterSliderHatchMarkAlignment.right,
-        density: 0.5,
-      ),
-      trackBar: const FlutterSliderTrackBar(
-        activeTrackBar: BoxDecoration(color: Colors.transparent),
-        inactiveTrackBar: BoxDecoration(color: Colors.transparent),
-      ),
-      onDragStarted: (a, b, c) {
-        isChanging = true;
-        setState(() => progress = b);
-      },
-      onDragCompleted: (a, b, c) {
-        isChanging = false;
-      },
-      onDragging: (a, b, c) {
-        setState(() => progress = b);
-        if ((lastProgress - progress).abs() > 1 / waveform.length) {
-          HapticFeedback.mediumImpact();
-          lastProgress = progress;
-        }
+          ),
+        );
       },
     );
-  }
-
-  List<FlutterSliderHatchMarkLabel> _updateEffects(double rightPercent) {
-    List<FlutterSliderHatchMarkLabel> newLabels = [];
-    for (int i = 0; i < waveform.length; i++) {
-      var dist = (i - rightPercent).abs();
-
-      // double activeOpacity = 1.0;
-      double inactiveOpacity = 0.2;
-      double activeHeight = 1.0;
-      double inactiveHeight = 1.0;
-
-      if (isChanging) {
-        // activeOpacity = 0.5;
-        inactiveOpacity = 0.1;
-      }
-
-      if (dist < 15 && isChanging) {
-        // activeOpacity = norm(dist, 0, 15, 1.0, 0.5);
-        inactiveOpacity = norm(dist, 0, 15, 0.2, 0.1);
-      }
-
-      if (dist < 15 && isChanging) {
-        activeHeight = norm(dist, 0, 15, 1.75, 1.0);
-        inactiveHeight = norm(dist, 0, 15, 1.25, 1.0);
-      }
-
-      Color color = Theme.of(context).colorScheme.primary;
-
-      if (i <= rightPercent) {
-        newLabels.add(
-          FlutterSliderHatchMarkLabel(
-            percent: i.toDouble(),
-            label: AnimatedContainer(
-              curve: isChanging ? Curves.easeOut : Curves.linearToEaseOut,
-              duration: Duration(milliseconds: isChanging ? 100 : 500),
-              height: waveform[i] * activeHeight / 1.5,
-              width: 2.25,
-              //margin: EdgeInsets.symmetric(horizontal: w),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.0),
-                color: color,
-              ),
-            ),
-          ),
-        );
-      } else {
-        newLabels.add(
-          FlutterSliderHatchMarkLabel(
-            percent: i.toDouble(),
-            label: AnimatedContainer(
-              curve: isChanging ? Curves.easeOut : Curves.linearToEaseOut,
-              duration: Duration(milliseconds: isChanging ? 100 : 500),
-              height: waveform[i] * inactiveHeight / 1.5,
-              width: 2.25,
-              //margin: EdgeInsets.symmetric(horizontal: w),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.0),
-                color: color.withOpacity(inactiveOpacity),
-              ),
-            ),
-          ),
-        );
-      }
-    }
-    return newLabels;
   }
 }

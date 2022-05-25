@@ -277,7 +277,6 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
           },
           onHorizontalDragEnd: (details) {
             if (offset > maxOffset) return;
-            if (offset > screenSize.height - deadSpace) return;
 
             final distance = sPrevOffset - sOffset;
             final speed = velocity.getVelocity().pixelsPerSecond.dx;
@@ -462,8 +461,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text("3:12", style: TextStyle(color: onSecondary)),
-                                    Text("1:31", style: TextStyle(color: onSecondary)),
+                                    Text("1:12", style: TextStyle(color: onSecondary)),
+                                    Text("2:31", style: TextStyle(color: onSecondary)),
                                   ],
                                 ),
                               ),
