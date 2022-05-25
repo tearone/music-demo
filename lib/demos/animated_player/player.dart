@@ -48,6 +48,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
 
   late ScrollController scrollController;
   bool queueScrollable = false;
+  bool bounceUp = false;
+  bool bounceDown = false;
 
   final List<MusicTrack> tracks = [
     const MusicTrack(image: "1", title: "akactea", artist: "pataki"),
@@ -116,25 +118,34 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
 
   void snapToExpanded() {
     offset = maxOffset;
+    if (prevOffset < maxOffset) bounceUp = true;
+    if (prevOffset > maxOffset) bounceDown = true;
     snap();
   }
 
   void snapToMini() {
     offset = 0;
+    bounceDown = false;
     snap();
   }
 
   void snapToQueue() {
     offset = maxOffset * 2;
+    bounceUp = false;
     snap();
   }
 
   void snap() {
-    widget.animation.animateTo(
-      offset / maxOffset,
-      curve: bouncingCurve,
-      duration: const Duration(milliseconds: 300),
-    );
+    widget.animation
+        .animateTo(
+          offset / maxOffset,
+          curve: bouncingCurve,
+          duration: const Duration(milliseconds: 300),
+        )
+        .orCancel
+        .then((_) {
+      bounceUp = false;
+    });
     if ((prevOffset - offset).abs() > actuationOffset) HapticFeedback.lightImpact();
   }
 
@@ -200,6 +211,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
         onPointerDown: (event) {
           velocity.addPosition(event.timeStamp, event.position);
           prevOffset = offset;
+          bounceUp = false;
+          bounceDown = false;
           if (offset <= maxOffset) return;
           if (scrollController.positions.isNotEmpty && scrollController.positions.first.pixels > 0.0 && offset >= maxOffset * 2) return;
           if (event.position.dy > screenSize.height - deadSpace) return;
@@ -294,6 +307,15 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
               final double qp = p.clamp(1.0, 3.0) - 1.0;
               final double qcp = qp.clamp(0.0, 1.0);
 
+              // print(1.0 - (p.clamp(1, 3) - 1));
+
+              final double bp = !bounceUp
+                  ? !bounceDown
+                      ? rp
+                      : 1 - (p - 1)
+                  : p;
+              final double bcp = bp.clamp(0.0, 1.0);
+
               final BorderRadius borderRadius = BorderRadius.only(
                 topLeft: Radius.circular(24.0 + 6.0 * p),
                 topRight: Radius.circular(24.0 + 6.0 * p),
@@ -301,8 +323,8 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                 bottomRight: Radius.circular(24.0 * (1 - p * 10 + 9).clamp(0, 1)),
               );
               final double bottomOffset = (-96 * icp + p.clamp(-1, 0) * -200);
-              final double opacity = (rcp * 5 - 4).clamp(0, 1);
-              final double fastOpacity = (rcp * 10 - 9).clamp(0, 1);
+              final double opacity = (bcp * 5 - 4).clamp(0, 1);
+              final double fastOpacity = (bcp * 10 - 9).clamp(0, 1);
               double panelHeight = maxOffset / 1.6;
               if (p > 1.0) {
                 panelHeight = vp(a: panelHeight, b: maxOffset / 1.6 - 100.0 - topInset, c: qcp);
@@ -361,46 +383,49 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                   /// Top Row
                   //! A bug causes performance issues when pressing the icon buttons multiple times
                   if (rcp > 0.0)
-                    Opacity(
-                      opacity: rcp,
-                      child: Transform.translate(
-                        offset: Offset(0, rip * -100),
-                        child: SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    snapToMini();
-                                  },
-                                  icon: Icon(Icons.expand_more, color: onSecondary),
-                                  iconSize: 32.0,
-                                ),
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      "Playing from",
-                                      style: TextStyle(
-                                        color: onSecondary.withOpacity(.8),
-                                        fontSize: 15.0,
-                                        fontWeight: FontWeight.w500,
+                    Material(
+                      type: MaterialType.transparency,
+                      child: Opacity(
+                        opacity: rcp,
+                        child: Transform.translate(
+                          offset: Offset(0, (1 - bp) * -100),
+                          child: SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      snapToMini();
+                                    },
+                                    icon: Icon(Icons.expand_more, color: onSecondary),
+                                    iconSize: 32.0,
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        "Playing from",
+                                        style: TextStyle(
+                                          color: onSecondary.withOpacity(.8),
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      "Fuzet",
-                                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20.0, color: onSecondary.withOpacity(.9)),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.more_vert, color: onSecondary),
-                                  iconSize: 26.0,
-                                ),
-                              ],
+                                      Text(
+                                        "Fuzet",
+                                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20.0, color: onSecondary.withOpacity(.9)),
+                                      ),
+                                    ],
+                                  ),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: Icon(Icons.more_vert, color: onSecondary),
+                                    iconSize: 26.0,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -412,18 +437,19 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                     Opacity(
                       opacity: fastOpacity,
                       child: Transform.translate(
-                        offset: Offset(0, bottomOffset + (-maxOffset / 4.4 * p.clamp(0, 3))),
+                        offset: Offset(0, bottomOffset + (-maxOffset / 4.4 * p)),
                         child: Align(
                           alignment: Alignment.bottomLeft,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const SizedBox(
-                                  height: 65.0,
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 24.0),
-                                    child: WaveformSlider(),
-                                  )),
+                                height: 65.0,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 24.0),
+                                  child: WaveformSlider(),
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                                 child: Row(
@@ -456,7 +482,16 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                   Material(
                     type: MaterialType.transparency,
                     child: Transform.translate(
-                      offset: Offset(0, bottomOffset + (-maxOffset / 7.5 * rp) + ((-maxOffset + topInset + 80.0) * qp)),
+                      offset: Offset(
+                          0,
+                          bottomOffset +
+                              (-maxOffset / 7.5 * bp) +
+                              ((-maxOffset + topInset + 80.0) *
+                                  (!bounceUp
+                                      ? !bounceDown
+                                          ? qp
+                                          : (1 - bp)
+                                      : 0.0))),
                       child: Padding(
                         padding: EdgeInsets.all(12.0 * icp),
                         child: Align(
@@ -468,7 +503,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                 Opacity(
                                   opacity: fastOpacity,
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 24.0 * (16 * icp + 1)),
+                                    padding: EdgeInsets.symmetric(horizontal: 24.0 * (16 * (!bounceDown ? icp : 0.0) + 1)),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
@@ -490,7 +525,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                 Opacity(
                                   opacity: fastOpacity,
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 84.0 * (2 * icp + 1)),
+                                    padding: EdgeInsets.symmetric(horizontal: 84.0 * (2 * (!bounceDown ? icp : 0.0) + 1)),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
@@ -509,8 +544,12 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                                   ),
                                 ),
                               Padding(
-                                padding:
-                                    EdgeInsets.all(12.0 * icp).add(EdgeInsets.only(right: screenSize.width * rcp / 2 - 80 * rcp / 2 + (qp * 24.0))),
+                                padding: EdgeInsets.all(12.0 * icp).add(EdgeInsets.only(
+                                    right: !bounceDown
+                                        ? !bounceUp
+                                            ? screenSize.width * rcp / 2 - 80 * rcp / 2 + (qp * 24.0)
+                                            : screenSize.width * cp / 2 - 80 * cp / 2
+                                        : screenSize.width * bcp / 2 - 80 * bcp / 2 + (qp * 24.0))),
                                 child: Theme(
                                   data: Theme.of(context).copyWith(
                                     floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -625,12 +664,19 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                             Opacity(
                               opacity: 1 - sAnim.value.abs(),
                               child: Transform.translate(
-                                offset: Offset(-sAnim.value * sMaxOffset / stParallax + (12.0 * qp), (-maxOffset + topInset + 102.0) * qp),
+                                offset: Offset(
+                                    -sAnim.value * sMaxOffset / stParallax + (12.0 * qp),
+                                    (-maxOffset + topInset + 102.0) *
+                                        (!bounceUp
+                                            ? !bounceDown
+                                                ? qp
+                                                : (1 - bp)
+                                            : 0.0)),
                                 child: TrackInfo(
                                     artist: tracks[1].artist,
                                     title: tracks[1].title,
-                                    cp: rcp,
-                                    p: rp,
+                                    p: bp,
+                                    cp: bcp,
                                     bottomOffset: bottomOffset,
                                     maxOffset: maxOffset,
                                     screenSize: screenSize),
@@ -680,11 +726,12 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                           Opacity(
                             opacity: 1 - sAnim.value.abs(),
                             child: Transform.translate(
-                              offset: Offset(-sAnim.value * sMaxOffset / siParallax, (-maxOffset + topInset + 108.0) * qp),
+                              offset: Offset(-sAnim.value * sMaxOffset / siParallax,
+                                  !bounceUp ? (-maxOffset + topInset + 108.0) * (!bounceDown ? qp : (1 - bp)) : 0.0),
                               child: TrackImage.fromBytes(
                                 bytes: widget.mainImageBytes,
-                                p: rp,
-                                cp: rcp,
+                                p: bp,
+                                cp: bcp,
                                 width: vp(a: 82.0, b: 92.0, c: qp),
                                 screenSize: screenSize,
                                 bottomOffset: bottomOffset,
@@ -723,6 +770,12 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                         ),
                       ),
                     ),
+
+                  // Container(
+                  //   color: Colors.red,
+                  //   width: 100.0 * bp + 100,
+                  //   height: 100.0 * bp + 100,
+                  // ),
                 ],
               );
             },
