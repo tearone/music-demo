@@ -209,23 +209,26 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
       },
       child: Listener(
         onPointerDown: (event) {
+          if (event.position.dy > screenSize.height - deadSpace) return;
+
           velocity.addPosition(event.timeStamp, event.position);
+
           prevOffset = offset;
+
           bounceUp = false;
           bounceDown = false;
-          if (offset <= maxOffset) return;
-          if (scrollController.positions.isNotEmpty && scrollController.positions.first.pixels > 0.0 && offset >= maxOffset * 2) return;
-          if (event.position.dy > screenSize.height - deadSpace) return;
         },
         onPointerMove: (event) {
+          if (event.position.dy > screenSize.height - deadSpace) return;
+
           velocity.addPosition(event.timeStamp, event.position);
 
           if (offset <= maxOffset) return;
           if (scrollController.positions.isNotEmpty && scrollController.positions.first.pixels > 0.0 && offset >= maxOffset * 2) return;
-          if (event.position.dy > screenSize.height - deadSpace) return;
 
           offset -= event.delta.dy;
           offset = offset.clamp(-headRoom, maxOffset * 2);
+
           widget.animation.animateTo(offset / maxOffset, duration: Duration.zero);
 
           setState(() => queueScrollable = offset >= maxOffset * 2);
@@ -233,6 +236,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
         onPointerUp: (event) {
           if (offset <= maxOffset) return;
           if (scrollController.positions.isNotEmpty && scrollController.positions.first.pixels > 0.0 && offset >= maxOffset * 2) return;
+
           setState(() => queueScrollable = true);
           verticalSnapping();
         },
@@ -245,15 +249,13 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
           },
 
           /// Vertical
-          // onVerticalDragStart: (details) {
-          //   prevOffset = offset;
-          // },
           onVerticalDragUpdate: (details) {
             if (details.globalPosition.dy > screenSize.height - deadSpace) return;
             if (offset > maxOffset) return;
 
             offset -= details.primaryDelta ?? 0;
             offset = offset.clamp(-headRoom, maxOffset * 2 + headRoom / 2);
+
             widget.animation.animateTo(offset / maxOffset, duration: Duration.zero);
           },
           onVerticalDragEnd: (_) => verticalSnapping(),
@@ -261,17 +263,22 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
           /// Horizontal
           onHorizontalDragStart: (details) {
             if (offset > maxOffset) return;
+
             sPrevOffset = sOffset;
           },
           onHorizontalDragUpdate: (details) {
             if (offset > maxOffset) return;
             if (details.globalPosition.dy > screenSize.height - deadSpace) return;
+
             sOffset -= details.primaryDelta ?? 0.0;
             sOffset = sOffset.clamp(-sMaxOffset, sMaxOffset);
+
             sAnim.animateTo(sOffset / sMaxOffset, duration: Duration.zero);
           },
           onHorizontalDragEnd: (details) {
             if (offset > maxOffset) return;
+            if (offset > screenSize.height - deadSpace) return;
+
             final distance = sPrevOffset - sOffset;
             final speed = velocity.getVelocity().pixelsPerSecond.dx;
             const threshold = 1000.0;
