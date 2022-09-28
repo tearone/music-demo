@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:musicdemo/demo.dart';
 import 'package:musicdemo/demos/animated_player.dart';
+import 'package:musicdemo/demos/interactive_slider.dart';
 
 class DemoList extends StatelessWidget {
   const DemoList({Key? key}) : super(key: key);
@@ -8,10 +9,14 @@ class DemoList extends StatelessWidget {
   final List<Demo> demos = const [
     Demo(
       title: "Animated Player",
-      page: AnimatedPlayer(),
+      page: AnimatedPlayerDemo(),
+    ),
+    Demo(
+      title: "Interactive Slider",
+      page: InteractiveSliderDemo(),
     ),
   ];
-  
+
   @override
   Widget build(BuildContext context) {
     return SliverList(
@@ -30,7 +35,7 @@ class DemoList extends StatelessWidget {
               ),
               child: InkWell(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AnimatedPlayer()));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => demos[index].page));
                 },
                 borderRadius: BorderRadius.circular(12.0),
                 child: Padding(

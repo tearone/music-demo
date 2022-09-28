@@ -6,14 +6,14 @@ import 'package:musicdemo/demos/animated_player/horizontal_showcase.dart';
 import 'package:musicdemo/demos/animated_player/player.dart';
 import 'package:musicdemo/image_color.dart';
 
-class AnimatedPlayer extends StatefulWidget {
-  const AnimatedPlayer({Key? key}) : super(key: key);
+class AnimatedPlayerDemo extends StatefulWidget {
+  const AnimatedPlayerDemo({Key? key}) : super(key: key);
 
   @override
-  State<AnimatedPlayer> createState() => _AnimatedPlayerState();
+  State<AnimatedPlayerDemo> createState() => _AnimatedPlayerDemoState();
 }
 
-class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProviderStateMixin {
+class _AnimatedPlayerDemoState extends State<AnimatedPlayerDemo> with SingleTickerProviderStateMixin {
   late AnimationController animation;
 
   @override
