@@ -89,22 +89,25 @@ class _AnimatedPlayerState extends State<AnimatedPlayer> with SingleTickerProvid
                         child: child,
                       );
                     },
-                    child: NavigationBar(
-                      destinations: const [
-                        NavigationDestination(
-                          label: "Home",
-                          icon: Icon(Icons.home_outlined),
-                          selectedIcon: Icon(Icons.home_filled),
-                        ),
-                        NavigationDestination(
-                          label: "Search",
-                          icon: Icon(Icons.search_outlined),
-                        ),
-                        NavigationDestination(
-                          label: "Library",
-                          icon: Icon(Icons.library_music_outlined),
-                        ),
-                      ],
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).removePadding(removeTop: true),
+                      child: NavigationBar(
+                        destinations: const [
+                          NavigationDestination(
+                            label: "Home",
+                            icon: Icon(Icons.home_outlined),
+                            selectedIcon: Icon(Icons.home_filled),
+                          ),
+                          NavigationDestination(
+                            label: "Search",
+                            icon: Icon(Icons.search_outlined),
+                          ),
+                          NavigationDestination(
+                            label: "Library",
+                            icon: Icon(Icons.library_music_outlined),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
